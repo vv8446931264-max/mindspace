@@ -102,7 +102,6 @@ JSON schema:
 export async function analyzeEntry(
   entry: JournalEntryRequest
 ): Promise<WellnessAnalysis> {
-  const key = cacheKeyFor(entry);
   const ai = getClient();
 
   const userContent = `Exam: ${entry.examContext}
