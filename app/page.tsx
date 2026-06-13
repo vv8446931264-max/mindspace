@@ -40,6 +40,7 @@ export default function HomePage() {
   const [appState, setAppState] = useState<AppState>({ status: "idle" });
   const [moodHistory, setMoodHistory] = useState<MoodHistoryEntry[]>([]);
   const [streak, setStreak] = useState(0);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const submitRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -47,12 +48,26 @@ export default function HomePage() {
     const history = readMoodHistory();
     setMoodHistory(history);
     setStreak(computeStreak(history));
+    // Demo mode: ?demo=1 in URL shows crisis card without real scan
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "crisis") {
+      setIsDemoMode(true);
+    }
   }, []);
 
   const isAnalyzing = appState.status === "analyzing";
 
   const doSubmit = useCallback(async () => {
     setFieldErrors({});
+
+    // Demo mode: immediately show crisis card without scan
+    if (isDemoMode) {
+      setAppState({
+        status: "crisis",
+        response: { crisisFlag: true, message: CRISIS_MESSAGE, helplines: [...CRISIS_HELPLINES] },
+      });
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      return;
+    }
 
     const validation = JournalEntryRequestSchema.safeParse({
       text: journalText,
@@ -129,7 +144,7 @@ export default function HomePage() {
     } catch {
       setAppState({ status: "error", message: "Connection issue — please check your network and try again." });
     }
-  }, [journalText, moodLevel, emotions, examContext, studyHours]);
+  }, [journalText, moodLevel, emotions, examContext, studyHours, isDemoMode]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -153,6 +168,11 @@ export default function HomePage() {
             <span className="text-xs text-slate-400 hidden sm:block">AI Wellness Companion</span>
           </div>
           <div className="flex items-center gap-4">
+            {isDemoMode && (
+              <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium border border-amber-200">
+                DEMO MODE
+              </span>
+            )}
             {streak > 0 && (
               <div className="flex items-center gap-1 text-sm" title={`${streak}-day logging streak`}>
                 <span aria-hidden="true">🔥</span>
