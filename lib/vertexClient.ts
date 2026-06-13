@@ -129,7 +129,6 @@ Journal entry: ${entry.text}`;
     });
 
     const text = response.text ?? "";
-    console.error("[VERTEX] raw response length:", text.length, "first 200:", text.slice(0, 200));
     // Strip any markdown code fences if present
     const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
@@ -147,13 +146,11 @@ Journal entry: ${entry.text}`;
   try {
     return await attempt();
   } catch (firstError) {
-    console.error("[VERTEX] first attempt failed:", firstError instanceof Error ? firstError.message : firstError);
     try {
       const errorMsg =
         firstError instanceof Error ? firstError.message : "Validation failed";
       return await attempt(errorMsg);
-    } catch (retryError) {
-      console.error("[VERTEX] retry failed:", retryError instanceof Error ? retryError.message : retryError);
+    } catch {
       return FALLBACK_ANALYSIS;
     }
   }
