@@ -123,12 +123,15 @@ Journal entry: ${entry.text}`;
       config: {
         systemInstruction: systemPrompt,
         temperature: 0.7,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
+        responseMimeType: "application/json",
       },
     });
 
     const text = response.text ?? "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    // Strip any markdown code fences if present
+    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON found in response");
 
     const parsed = JSON.parse(jsonMatch[0]);
@@ -143,11 +146,13 @@ Journal entry: ${entry.text}`;
   try {
     return await attempt();
   } catch (firstError) {
+    console.error("[VERTEX] first attempt failed:", firstError instanceof Error ? firstError.message : firstError);
     try {
       const errorMsg =
         firstError instanceof Error ? firstError.message : "Validation failed";
       return await attempt(errorMsg);
-    } catch {
+    } catch (retryError) {
+      console.error("[VERTEX] retry failed:", retryError instanceof Error ? retryError.message : retryError);
       return FALLBACK_ANALYSIS;
     }
   }
