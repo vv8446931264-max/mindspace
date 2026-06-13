@@ -129,6 +129,7 @@ Journal entry: ${entry.text}`;
     });
 
     const text = response.text ?? "";
+    console.error("[VERTEX] raw response length:", text.length, "first 200:", text.slice(0, 200));
     // Strip any markdown code fences if present
     const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);

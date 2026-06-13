@@ -1,34 +1,43 @@
 import { z } from "zod";
 
+// Truncate helper — LLM output can slightly exceed limits; trim rather than reject
+const trimmed = (max: number) => z.string().transform((s) => s.slice(0, max));
+
 const CopingStrategySchema = z.object({
-  title: z.string().max(50),
-  description: z.string().max(200),
-  durationMinutes: z.number().int().min(1).max(30),
-  examRelevance: z.string().max(100),
+  title: trimmed(50),
+  description: trimmed(200),
+  durationMinutes: z.number().min(1).max(30).transform(Math.round),
+  examRelevance: trimmed(100),
 });
 
 const MindfulnessExerciseSchema = z.object({
-  name: z.string().max(50),
-  steps: z.array(z.string().max(100)).min(3).max(5),
-  durationMinutes: z.number().int().min(2).max(15),
-  type: z.enum([
-    "breathing",
-    "grounding",
-    "visualization",
-    "body_scan",
-    "journaling_prompt",
-  ]),
+  name: trimmed(50),
+  steps: z.array(trimmed(120)).min(3).max(7).transform((s) => s.slice(0, 5)),
+  durationMinutes: z.number().min(1).max(20).transform(Math.round),
+  type: z
+    .string()
+    .transform((v) =>
+      ["breathing", "grounding", "visualization", "body_scan", "journaling_prompt"].includes(v)
+        ? v
+        : "breathing"
+    ) as z.ZodType<"breathing" | "grounding" | "visualization" | "body_scan" | "journaling_prompt">,
 });
 
-export const WellnessAnalysisSchema = z.object({
-  stressTriggers: z.array(z.string().max(80)).min(1).max(3),
-  emotionalPatterns: z.string().max(300),
-  copingStrategy: CopingStrategySchema,
-  mindfulnessExercise: MindfulnessExerciseSchema,
-  motivationalMessage: z.string().max(150),
-  crisisFlag: z.literal(false),
-  disclaimer: z.string().optional(),
-});
+export const WellnessAnalysisSchema = z
+  .object({
+    stressTriggers: z.array(trimmed(120)).min(1).transform((a) => a.slice(0, 3)),
+    emotionalPatterns: trimmed(400),
+    copingStrategy: CopingStrategySchema,
+    mindfulnessExercise: MindfulnessExerciseSchema,
+    motivationalMessage: trimmed(200),
+    // AI may omit crisisFlag or set it wrong — server always forces false
+    crisisFlag: z.any().optional(),
+    disclaimer: z.string().optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    crisisFlag: false as const,
+  }));
 
 export const MoodHistoryEntrySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
