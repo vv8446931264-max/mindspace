@@ -1,42 +1,137 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F0F4F8;
-  --foreground: #1E293B;
+  --background: #eef2fb;
+  --foreground: #1e293b;
+  --font-jakarta: "Plus Jakarta Sans";
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Calming layered gradient mesh — soft blue + sage, like a clear study morning. */
+  background-color: var(--background);
+  background-image:
+    radial-gradient(at 8% 4%, rgba(91, 141, 239, 0.16) 0px, transparent 50%),
+    radial-gradient(at 92% 0%, rgba(82, 201, 160, 0.14) 0px, transparent 45%),
+    radial-gradient(at 75% 95%, rgba(129, 161, 245, 0.12) 0px, transparent 45%),
+    radial-gradient(at 5% 100%, rgba(82, 201, 160, 0.1) 0px, transparent 40%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 /* Custom range slider thumb */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: #5B8DEF;
+  background: #5b8def;
   cursor: pointer;
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(91, 141, 239, 0.4);
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.15);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: #5B8DEF;
+  background: #5b8def;
   cursor: pointer;
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(91, 141, 239, 0.4);
 }
 
-/* Reduced motion — disable all transitions */
+/* ── Signature reveal: analysis sections stagger in like the app is thinking ── */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.card-enter {
+  animation: float-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pulse-once {
+  animation: soft-pulse 1.6s ease-in-out 0.6s;
+}
+
+/* Gentle shimmer for loading skeletons */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #e8edf5;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+/* Reduced motion — disable all animation + transitions */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .reveal,
+  .card-enter {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

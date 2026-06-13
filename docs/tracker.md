@@ -6,6 +6,15 @@
 
 GitHub: **https://github.com/vv8446931264-max/mindspace**
 
+## Quality Snapshot (latest)
+
+- **91 tests passing** across 8 suites (unit + Zod + jest-axe + component interaction)
+- ESLint clean (0 warnings), `tsc --noEmit` clean, production build clean
+- All source files < 200 lines; `page.tsx` is a 60-line composition layer
+- Security headers incl. HSTS + hardened CSP verified live
+- UI: Plus Jakarta Sans, gradient mesh background, staggered analysis reveal,
+  skeleton loader, gradient cards — responsive + reduced-motion safe
+
 ---
 
 ## Status Checklist

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import type { WellnessAnalysis } from "@/types";
 
 type Props = {
@@ -15,52 +15,42 @@ const EXERCISE_ICONS: Record<string, string> = {
   journaling_prompt: "✍️",
 };
 
+/** Per-section stagger so the analysis appears to "think through" the entry. */
+function delay(index: number): CSSProperties {
+  return { animationDelay: `${index * 110}ms` };
+}
+
 export default function AnalysisCard({ analysis }: Props) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Small delay to trigger CSS transition
-    const t = setTimeout(() => setVisible(true), 30);
-    return () => clearTimeout(t);
-  }, []);
-
-  const prefersReducedMotion =
-    typeof window !== "undefined"
-      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      : false;
-
-  const baseClass = prefersReducedMotion
-    ? "opacity-100"
-    : `transition-all duration-300 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      }`;
+  const { mindfulnessExercise: ex } = analysis;
 
   return (
-    <div
-      className={`rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden ${baseClass}`}
-    >
+    <article className="card-enter rounded-3xl bg-white/90 backdrop-blur border border-white shadow-[0_8px_30px_rgba(91,141,239,0.12)] overflow-hidden">
       {/* Stress Triggers */}
-      <section className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-          🎯 Stress Triggers Identified
+      <section className="reveal p-5 border-b border-slate-100" style={delay(0)}>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <span aria-hidden="true">🎯</span> Stress Triggers Identified
         </h3>
-        <ul className="space-y-2">
+        <ul className="space-y-2.5">
           {analysis.stressTriggers.map((trigger, i) => (
-            <li key={i} className="flex items-start gap-2">
+            <li key={i} className="flex items-start gap-2.5">
               <span
-                className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#5B8DEF] flex-shrink-0"
+                className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-lg bg-gradient-to-br from-[#5B8DEF] to-[#7BA4F5] text-white text-[10px] flex items-center justify-center font-bold"
                 aria-hidden="true"
-              />
-              <span className="text-slate-700 text-sm">{trigger}</span>
+              >
+                {i + 1}
+              </span>
+              <span className="text-slate-700 text-sm leading-snug">
+                {trigger}
+              </span>
             </li>
           ))}
         </ul>
       </section>
 
       {/* Emotional Patterns */}
-      <section className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          🔍 What I&apos;m Noticing
+      <section className="reveal p-5 border-b border-slate-100" style={delay(1)}>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <span aria-hidden="true">🔍</span> What I&apos;m Noticing
         </h3>
         <p className="text-slate-700 text-sm leading-relaxed">
           {analysis.emotionalPatterns}
@@ -68,48 +58,49 @@ export default function AnalysisCard({ analysis }: Props) {
       </section>
 
       {/* Coping Strategy */}
-      <section className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-          💪 Coping Strategy for You
+      <section className="reveal p-5 border-b border-slate-100" style={delay(2)}>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <span aria-hidden="true">💪</span> Coping Strategy for You
         </h3>
-        <div className="bg-blue-50 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="font-semibold text-slate-800">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 space-y-2.5 border border-blue-100/60">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-bold text-slate-800">
               {analysis.copingStrategy.title}
             </p>
-            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full border">
-              {analysis.copingStrategy.durationMinutes} min
+            <span className="text-xs font-medium text-[#5B8DEF] bg-white px-2.5 py-1 rounded-full border border-blue-100 whitespace-nowrap">
+              ⏱ {analysis.copingStrategy.durationMinutes} min
             </span>
           </div>
           <p className="text-slate-700 text-sm leading-relaxed">
             {analysis.copingStrategy.description}
           </p>
-          <p className="text-xs text-blue-700 bg-blue-100 px-3 py-1.5 rounded-lg">
+          <p className="text-xs text-blue-800 bg-blue-100/70 px-3 py-2 rounded-xl leading-relaxed">
             💡 {analysis.copingStrategy.examRelevance}
           </p>
         </div>
       </section>
 
       {/* Mindfulness Exercise */}
-      <section className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-          {EXERCISE_ICONS[analysis.mindfulnessExercise.type] ?? "🧘"}{" "}
-          {analysis.mindfulnessExercise.durationMinutes}-Minute Practice
+      <section className="reveal p-5 border-b border-slate-100" style={delay(3)}>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <span aria-hidden="true">{EXERCISE_ICONS[ex.type] ?? "🧘"}</span>{" "}
+          {ex.durationMinutes}-Minute Practice
         </h3>
-        <div className="space-y-2">
-          <p className="font-semibold text-slate-800">
-            {analysis.mindfulnessExercise.name}
-          </p>
-          <ol className="space-y-1.5">
-            {analysis.mindfulnessExercise.steps.map((step, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 space-y-3 border border-emerald-100/60">
+          <p className="font-bold text-slate-800">{ex.name}</p>
+          <ol className="space-y-2">
+            {ex.steps.map((step, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2.5 text-sm text-slate-700 leading-snug"
+              >
                 <span
-                  className="flex-shrink-0 w-5 h-5 rounded-full bg-[#52C9A0] text-white text-xs flex items-center justify-center font-medium"
+                  className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-[#52C9A0] to-[#6BD4B0] text-white text-xs flex items-center justify-center font-bold shadow-sm"
                   aria-hidden="true"
                 >
                   {i + 1}
                 </span>
-                {step}
+                <span className="pt-0.5">{step}</span>
               </li>
             ))}
           </ol>
@@ -117,21 +108,29 @@ export default function AnalysisCard({ analysis }: Props) {
       </section>
 
       {/* Motivational Message */}
-      <section className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          ✨ A Message for You
+      <section className="reveal p-5" style={delay(4)}>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <span aria-hidden="true">✨</span> A Message for You
         </h3>
-        <p className="text-base font-medium text-[#5B8DEF] leading-relaxed">
-          &ldquo;{analysis.motivationalMessage}&rdquo;
-        </p>
+        <blockquote className="pulse-once relative rounded-2xl bg-gradient-to-br from-[#5B8DEF] to-[#7B6FE8] p-4 text-white shadow-lg shadow-blue-200">
+          <span
+            className="absolute top-1 left-3 text-3xl text-white/30 leading-none"
+            aria-hidden="true"
+          >
+            &ldquo;
+          </span>
+          <p className="relative text-[15px] font-medium leading-relaxed pl-4">
+            {analysis.motivationalMessage}
+          </p>
+        </blockquote>
       </section>
 
       {/* Disclaimer */}
-      <div className="px-5 py-3 bg-slate-50">
-        <p className="text-xs text-slate-400 italic text-center">
+      <div className="px-5 py-3 bg-slate-50/80 border-t border-slate-100">
+        <p className="text-[11px] text-slate-400 italic text-center leading-relaxed">
           {analysis.disclaimer}
         </p>
       </div>
-    </div>
+    </article>
   );
 }

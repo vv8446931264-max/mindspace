@@ -44,12 +44,17 @@ export default function JournalForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5"
+      className="bg-white/90 backdrop-blur rounded-3xl shadow-[0_8px_30px_rgba(91,141,239,0.1)] border border-white p-6 space-y-5"
       noValidate
     >
-      <h2 className="text-base font-semibold text-slate-800">
-        How&apos;s your day going?
-      </h2>
+      <div>
+        <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">
+          How&apos;s your day going?
+        </h2>
+        <p className="text-xs text-slate-400 mt-0.5">
+          Be honest — this is your private space.
+        </p>
+      </div>
 
       <div className="space-y-1.5">
         <label
@@ -160,7 +165,7 @@ export default function JournalForm({
       <button
         type="submit"
         disabled={isAnalyzing}
-        className="w-full bg-[#5B8DEF] hover:bg-[#4a7de0] active:bg-[#3a6dd0] text-white font-semibold py-3 px-4 rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-[#5B8DEF] to-[#7B6FE8] hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
         aria-busy={isAnalyzing}
       >
         {isAnalyzing ? (

@@ -17,7 +17,7 @@ export default function HomePage() {
         Skip to journal form
       </a>
 
-      <main className="min-h-screen bg-[#F0F4F8]">
+      <main className="min-h-screen">
         <AppHeader
           streak={w.streak}
           isDemoMode={w.isDemoMode}
@@ -25,7 +25,7 @@ export default function HomePage() {
           trend={w.trend}
         />
 
-        <div className="max-w-4xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
           <section aria-label="Journal entry form" id="journal-form">
             <JournalForm
               examContext={w.examContext}
