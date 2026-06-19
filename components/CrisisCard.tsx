@@ -1,4 +1,5 @@
 import type { Helpline } from "@/types";
+import { HeartHandshakeIcon, PhoneIcon } from "@/components/icons";
 
 type Props = {
   message: string;
@@ -10,11 +11,11 @@ export default function CrisisCard({ message, helplines }: Props) {
     <div
       role="alert"
       aria-live="assertive"
-      className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-6 space-y-4"
+      className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-6 space-y-4"
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0" aria-hidden="true">
-          🤝
+        <span className="grid place-items-center w-9 h-9 flex-shrink-0 rounded-xl bg-amber-200 text-amber-700" aria-hidden="true">
+          <HeartHandshakeIcon size={20} />
         </span>
         <div>
           <h2 className="text-lg font-semibold text-amber-900">
@@ -41,10 +42,10 @@ export default function CrisisCard({ message, helplines }: Props) {
             </div>
             <a
               href={`tel:${h.number}`}
-              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2"
+              className="flex items-center gap-2 min-h-[44px] bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2"
               aria-label={`Call ${h.name} at ${h.number}`}
             >
-              <span aria-hidden="true">📞</span>
+              <PhoneIcon size={16} />
               <span>{h.number}</span>
             </a>
           </div>

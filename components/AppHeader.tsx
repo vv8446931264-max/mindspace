@@ -1,4 +1,5 @@
 import type { MoodTrend } from "@/types";
+import { BrainIcon, FlameIcon } from "@/components/icons";
 
 type Props = {
   streak: number;
@@ -20,10 +21,10 @@ export default function AppHeader({ streak, isDemoMode, hasHistory, trend }: Pro
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span
-            className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-[#5B8DEF] to-[#7B6FE8] text-lg shadow-md shadow-blue-200"
+            className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-[#5B8DEF] to-[#7B6FE8] text-white shadow-md shadow-blue-200"
             aria-hidden="true"
           >
-            🧠
+            <BrainIcon size={20} />
           </span>
           <div className="leading-tight">
             <h1 className="text-base font-extrabold text-slate-800 tracking-tight">
@@ -46,7 +47,7 @@ export default function AppHeader({ streak, isDemoMode, hasHistory, trend }: Pro
               className="flex items-center gap-1 text-sm bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full"
               title={`${streak}-day logging streak`}
             >
-              <span aria-hidden="true">🔥</span>
+              <FlameIcon size={14} className="text-orange-500" />
               <span className="font-bold text-orange-500">{streak}</span>
               <span className="text-slate-400 text-xs hidden sm:inline">
                 day{streak > 1 ? "s" : ""}

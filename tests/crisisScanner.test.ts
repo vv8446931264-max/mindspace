@@ -82,4 +82,44 @@ describe("scanForCrisis", () => {
     const result = scanForCrisis(long);
     expect(result.crisis).toBe(true);
   });
+
+  // ── Expanded coverage: short, high-signal words ──────────────
+  it("detects standalone 'die'", () => {
+    expect(scanForCrisis("I just want to die").crisis).toBe(true);
+    expect(scanForCrisis("let me die").crisis).toBe(true);
+  });
+
+  it("detects 'dying'", () => {
+    expect(scanForCrisis("I keep thinking about dying").crisis).toBe(true);
+  });
+
+  it("detects 'feeling like to do suicide'", () => {
+    expect(scanForCrisis("feeling like to do suicide").crisis).toBe(true);
+  });
+
+  it("detects 'kill me' / 'take my life' / 'overdose'", () => {
+    expect(scanForCrisis("I want someone to kill me").crisis).toBe(true);
+    expect(scanForCrisis("thinking about how to take my life").crisis).toBe(true);
+    expect(scanForCrisis("what if I overdose").crisis).toBe(true);
+  });
+
+  it("detects 'dont want to live'", () => {
+    expect(scanForCrisis("I dont want to live anymore").crisis).toBe(true);
+  });
+
+  // ── Word boundaries: must NOT false-trigger on innocent words ─
+  it("does NOT flag 'studied' (contains 'died')", () => {
+    expect(scanForCrisis("I studied for ten hours today").crisis).toBe(false);
+  });
+
+  it("does NOT flag 'diet' or 'deadline'", () => {
+    expect(scanForCrisis("I started a new diet this week").crisis).toBe(false);
+    expect(scanForCrisis("the deadline is killing my schedule").crisis).toBe(false);
+  });
+
+  it("tags severity on a match", () => {
+    const r = scanForCrisis("I want to die");
+    expect(r.crisis).toBe(true);
+    if (r.crisis) expect(r.severity).toBe("severe");
+  });
 });

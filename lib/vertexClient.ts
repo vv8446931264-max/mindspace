@@ -154,8 +154,3 @@ Journal entry: ${entry.text}`;
     }
   }
 }
-
-// Exported for use in route.ts
-export function cacheKeyFor(entry: JournalEntryRequest): string {
-  return `${entry.examContext}:${entry.text.trim().toLowerCase().slice(0, 200)}`;
-}

@@ -44,7 +44,7 @@ export default function JournalForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white/90 backdrop-blur rounded-3xl shadow-[0_8px_30px_rgba(91,141,239,0.1)] border border-white p-6 space-y-5"
+      className="tilt bg-white/90 backdrop-blur rounded-3xl shadow-[0_8px_30px_rgba(91,141,239,0.1)] border border-white p-6 space-y-5"
       noValidate
     >
       <div>

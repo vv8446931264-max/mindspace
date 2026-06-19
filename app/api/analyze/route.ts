@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JournalEntryRequestSchema } from "@/schemas/journalEntry";
 import { scanForCrisis, CRISIS_HELPLINES, CRISIS_MESSAGE } from "@/lib/crisisScanner";
-import { analyzeEntry, cacheKeyFor } from "@/lib/vertexClient";
-import { cacheGet, cacheSet, getInFlight, setInFlight } from "@/lib/cache";
+import { analyzeEntry } from "@/lib/vertexClient";
+import {
+  cacheGet,
+  cacheSet,
+  cacheKey,
+  getInFlight,
+  setInFlight,
+} from "@/lib/cache";
 import { checkRateLimit, maybeCleanup } from "@/lib/rateLimit";
 import type { CrisisResponse, WellnessAnalysis } from "@/types";
 
@@ -82,7 +88,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   // Cache lookup
-  const key = cacheKeyFor(entry);
+  const key = cacheKey(entry.text, entry.examContext);
   const cached = cacheGet(key);
   if (cached) {
     return NextResponse.json(cached, { status: 200, headers: SECURITY_HEADERS });

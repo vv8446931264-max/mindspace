@@ -120,6 +120,115 @@ input[type="range"]::-moz-range-thumb {
   animation: shimmer 1.4s infinite;
 }
 
+/* ──────────────────────────────────────────────────────────
+   Landing hero — twilight 3D atmosphere ("night into morning")
+   ────────────────────────────────────────────────────────── */
+.hero-night {
+  background:
+    radial-gradient(60% 50% at 50% 8%, rgba(123, 111, 232, 0.35) 0%, transparent 60%),
+    radial-gradient(50% 40% at 85% 30%, rgba(82, 201, 160, 0.18) 0%, transparent 55%),
+    radial-gradient(70% 60% at 12% 75%, rgba(91, 141, 239, 0.22) 0%, transparent 60%),
+    linear-gradient(180deg, #0e1430 0%, #161c44 55%, #20285c 100%);
+}
+
+/* Stars / dust specks */
+.hero-stars {
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(255, 255, 255, 0.7) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 70% 20%, rgba(255, 255, 255, 0.5) 50%, transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.6) 50%, transparent),
+    radial-gradient(1px 1px at 85% 60%, rgba(255, 255, 255, 0.45) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 55% 85%, rgba(255, 255, 255, 0.5) 50%, transparent),
+    radial-gradient(1px 1px at 10% 55%, rgba(255, 255, 255, 0.5) 50%, transparent);
+  animation: twinkle 6s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+
+/* Box-breathing pulse: 4s in, hold, 4s out feel */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+.breathe { animation: breathe 8s ease-in-out infinite; }
+
+@keyframes breathe-ring {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.breathe-ring { animation: breathe-ring 8s ease-out infinite; }
+
+/* Gentle 3D drift for floating cards/orbs */
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(0, -18px, 0) rotate(1deg); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(3deg); }
+  50% { transform: translate3d(0, 14px, 0) rotate(-2deg); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(8px, -12px, 0); }
+}
+.drift-a { animation: drift-a 9s ease-in-out infinite; }
+.drift-b { animation: drift-b 11s ease-in-out infinite; }
+.drift-c { animation: drift-c 7.5s ease-in-out infinite; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.bob { animation: bob 2.4s ease-in-out infinite; }
+
+.hero-fade-up {
+  opacity: 0;
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Workspace atmosphere — drifting colour orbs glowing through
+   the frosted-glass cards, plus a 3D entrance + hover tilt.
+   ────────────────────────────────────────────────────────── */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(50px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* 3D entrance — cards rise and rotate flat from a slight tilt */
+@keyframes float-in-3d {
+  from {
+    opacity: 0;
+    transform: perspective(1100px) translateY(34px) rotateX(7deg) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1100px) translateY(0) rotateX(0) scale(1);
+  }
+}
+.float-in {
+  opacity: 0;
+  animation: float-in-3d 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Subtle interactive 3D tilt + lift on the glass cards */
+.tilt {
+  transform: perspective(900px);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
+  will-change: transform;
+}
+.tilt:hover {
+  transform: perspective(900px) translateY(-5px) rotateX(2.2deg) rotateY(-2.2deg);
+}
+
 /* Reduced motion — disable all animation + transitions */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -130,8 +239,26 @@ input[type="range"]::-moz-range-thumb {
     transition-duration: 0.01ms !important;
   }
   .reveal,
-  .card-enter {
+  .card-enter,
+  .hero-fade-up {
     opacity: 1 !important;
     transform: none !important;
+  }
+  .breathe,
+  .breathe-ring,
+  .drift-a,
+  .drift-b,
+  .drift-c,
+  .bob,
+  .hero-stars,
+  .orb {
+    animation: none !important;
+  }
+  .float-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .tilt:hover {
+    transform: perspective(900px) translateY(-2px) !important;
   }
 }

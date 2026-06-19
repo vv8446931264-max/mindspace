@@ -50,7 +50,7 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
       </legend>
 
       <div
-        className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+        className="grid grid-cols-2 gap-2 sm:grid-cols-3"
         role="group"
         aria-label="Emotion tags"
       >
@@ -72,7 +72,7 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
                 }
               }}
               className={[
-                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                "flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-all",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-1",
                 "border",
                 isSelected

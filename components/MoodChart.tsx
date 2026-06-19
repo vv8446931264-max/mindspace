@@ -1,6 +1,7 @@
 "use client";
 
 import { getChartData } from "@/lib/moodEngine";
+import { TrendUpIcon } from "@/components/icons";
 import type { MoodHistoryEntry } from "@/types";
 
 type Props = {
@@ -51,8 +52,8 @@ export default function MoodChart({ history }: Props) {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-        📈 7-Day Mood Trend
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 uppercase tracking-wide">
+        <TrendUpIcon size={15} className="text-[#5B8DEF]" /> 7-Day Mood Trend
       </h3>
 
       {!hasData ? (
