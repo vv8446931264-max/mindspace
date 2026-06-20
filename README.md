@@ -4,7 +4,9 @@
 > structured, exam-specific wellness support in under 3 seconds — with crisis safety
 > built in at the core.
 
-**Live demo:** https://mindspace-1053195634368.us-central1.run.app
+**Live demos:**
+- **Vercel (recommended — free tier):** https://mindspace-one-taupe.vercel.app
+- **Cloud Run (GCP):** https://mindspace-1053195634368.us-central1.run.app
 
 ---
 
@@ -77,7 +79,7 @@ Mood history saved to localStorage (scores only — raw text never persisted)
 | AI | Google Gemini 2.5 Flash via Vertex AI (ADC — no API keys) |
 | Validation | Zod |
 | Tests | Vitest + jest-axe |
-| Hosting | Google Cloud Run |
+| Hosting | Vercel (primary) · Google Cloud Run (backup) |
 
 ## Run Locally in 60 Seconds
 
