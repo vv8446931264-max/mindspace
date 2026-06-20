@@ -4,6 +4,7 @@ import MoodPicker from "@/components/MoodPicker";
 import EmotionPicker from "@/components/EmotionPicker";
 import { EXAM_CONTEXTS } from "@/schemas/journalEntry";
 import { MAX_CHARS } from "@/lib/useWellness";
+import { checkWellnessFlags } from "@/lib/wellnessFlags";
 import type { EmotionTag, ExamContext, MoodLevel } from "@/types";
 
 type Props = {
@@ -41,14 +42,16 @@ export default function JournalForm({
   isAnalyzing,
   onSubmit,
 }: Props) {
+  const flags = checkWellnessFlags(moodLevel, emotions, studyHours);
+
   return (
     <form
       onSubmit={onSubmit}
-      className="tilt bg-white/90 backdrop-blur rounded-3xl shadow-[0_8px_30px_rgba(91,141,239,0.1)] border border-white p-6 space-y-5"
+      className="tilt glass rounded-3xl p-6 space-y-5"
       noValidate
     >
       <div>
-        <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">
+        <h2 className="text-lg font-extrabold text-white tracking-tight">
           How&apos;s your day going?
         </h2>
         <p className="text-xs text-slate-400 mt-0.5">
@@ -59,7 +62,7 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="examContext"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-slate-200"
         >
           I&apos;m preparing for
         </label>
@@ -68,7 +71,7 @@ export default function JournalForm({
           value={examContext}
           onChange={(e) => setExamContext(e.target.value as ExamContext)}
           disabled={isAnalyzing}
-          className={`w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 disabled:opacity-50 ${FOCUS_RING}`}
+          className={`field w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50 ${FOCUS_RING}`}
         >
           {EXAM_CONTEXTS.map((ctx) => (
             <option key={ctx} value={ctx}>
@@ -96,7 +99,7 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="studyHours"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-slate-200"
         >
           Study hours today:{" "}
           <span className="font-bold text-[#5B8DEF]">{studyHours}h</span>
@@ -114,7 +117,7 @@ export default function JournalForm({
           aria-valuemax={18}
           aria-valuenow={studyHours}
           aria-valuetext={`${studyHours} hours`}
-          className={`w-full h-2 rounded-full appearance-none cursor-pointer bg-slate-200 disabled:opacity-50 focus-visible:ring-offset-2 ${FOCUS_RING}`}
+          className={`w-full h-2 rounded-full appearance-none cursor-pointer bg-white/10 disabled:opacity-50 focus-visible:ring-offset-2 ${FOCUS_RING}`}
         />
         <div className="flex justify-between text-xs text-slate-400">
           <span>0h</span>
@@ -126,7 +129,7 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="journalText"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-slate-200"
         >
           What&apos;s on your mind?
         </label>
@@ -138,7 +141,7 @@ export default function JournalForm({
           placeholder="Write freely — how did today go? What's weighing on you? What went well?"
           rows={5}
           aria-describedby="charCount journalHint"
-          className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 resize-none disabled:opacity-50 ${FOCUS_RING}`}
+          className={`field w-full rounded-lg px-3 py-2 text-sm resize-none disabled:opacity-50 ${FOCUS_RING}`}
         />
         <div className="flex justify-between items-center">
           <p id="journalHint" className="text-xs text-slate-400">
@@ -161,6 +164,21 @@ export default function JournalForm({
           </p>
         )}
       </div>
+
+      {flags.map((flag) => (
+        <div
+          key={flag.type}
+          role="status"
+          aria-live="polite"
+          className={`text-xs px-3 py-2 rounded-lg border ${
+            flag.severity === "caution"
+              ? "bg-amber-500/15 border-amber-400/40 text-amber-200"
+              : "bg-[#5B8DEF]/15 border-[#5B8DEF]/40 text-blue-200"
+          }`}
+        >
+          {flag.message}
+        </div>
+      ))}
 
       <button
         type="submit"

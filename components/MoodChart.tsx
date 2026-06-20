@@ -52,12 +52,12 @@ export default function MoodChart({ history }: Props) {
 
   return (
     <div className="space-y-2">
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 uppercase tracking-wide">
-        <TrendUpIcon size={15} className="text-[#5B8DEF]" /> 7-Day Mood Trend
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-300 uppercase tracking-wide">
+        <TrendUpIcon size={15} className="text-[#9db8ff]" /> 7-Day Mood Trend
       </h3>
 
       {!hasData ? (
-        <div className="h-[100px] flex items-center justify-center bg-slate-50 rounded-xl border border-slate-100">
+        <div className="h-[100px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10">
           <p className="text-sm text-slate-400">
             Log your first entry to see your trend
           </p>
@@ -80,7 +80,7 @@ export default function MoodChart({ history }: Props) {
                 y1={yPos(v)}
                 x2={W - PADDING.right}
                 y2={yPos(v)}
-                stroke="#F1F5F9"
+                stroke="rgba(255,255,255,0.1)"
                 strokeWidth={1}
               />
             ))}
@@ -93,7 +93,7 @@ export default function MoodChart({ history }: Props) {
                 y={yPos(v) + 4}
                 textAnchor="end"
                 fontSize={9}
-                fill="#94A3B8"
+                fill="#9db8ff"
               >
                 {v}
               </text>
@@ -142,7 +142,7 @@ export default function MoodChart({ history }: Props) {
                 y={H - 4}
                 textAnchor="middle"
                 fontSize={9}
-                fill="#94A3B8"
+                fill="#9db8ff"
               >
                 {d.label}
               </text>

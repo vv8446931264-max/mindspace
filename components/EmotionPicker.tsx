@@ -1,6 +1,7 @@
 "use client";
 
 import type { EmotionTag } from "@/types";
+import { getDisabledEmotions, getConflictReason } from "@/lib/emotionRules";
 
 const EMOTIONS: { tag: EmotionTag; label: string; emoji: string }[] = [
   { tag: "anxious", label: "Anxious", emoji: "😰" },
@@ -25,6 +26,12 @@ type Props = {
 
 export default function EmotionPicker({ selected, onChange, disabled }: Props) {
   const maxReached = selected.length >= 3;
+  const conflicting = getDisabledEmotions(selected);
+
+  /** First selected emotion that conflicts with `tag` — for the tooltip. */
+  function blockedBy(tag: EmotionTag): EmotionTag | undefined {
+    return selected.find((s) => getDisabledEmotions([s]).includes(tag));
+  }
 
   function toggle(tag: EmotionTag) {
     if (disabled) return;
@@ -37,13 +44,13 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-medium text-slate-700">
+      <legend className="text-sm font-medium text-slate-200">
         How you&apos;re feeling{" "}
         <span className="text-slate-400 font-normal">
           (pick 1–3)
         </span>
         {maxReached && (
-          <span className="ml-2 text-xs text-amber-600 font-normal">
+          <span className="ml-2 text-xs text-amber-300 font-normal">
             Max 3 selected
           </span>
         )}
@@ -56,7 +63,9 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
       >
         {EMOTIONS.map(({ tag, label, emoji }) => {
           const isSelected = selected.includes(tag);
-          const isDisabled = disabled || (!isSelected && maxReached);
+          const isConflict = !isSelected && conflicting.includes(tag);
+          const isDisabled = disabled || (!isSelected && (maxReached || isConflict));
+          const conflictSource = isConflict ? blockedBy(tag) : undefined;
 
           return (
             <button
@@ -64,6 +73,9 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
               type="button"
               aria-pressed={isSelected}
               disabled={isDisabled}
+              title={
+                conflictSource ? getConflictReason(tag, conflictSource) : undefined
+              }
               onClick={() => toggle(tag)}
               onKeyDown={(e) => {
                 if (e.key === " " || e.key === "Enter") {
@@ -78,8 +90,8 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
                 isSelected
                   ? "bg-[#5B8DEF] text-white border-[#5B8DEF] shadow-sm"
                   : isDisabled
-                  ? "bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-[#5B8DEF] hover:text-[#5B8DEF] cursor-pointer",
+                  ? "bg-white/[0.03] text-slate-500 border-white/10 cursor-not-allowed"
+                  : "bg-white/5 text-slate-200 border-white/12 hover:border-[#5B8DEF] hover:text-[#9db8ff] cursor-pointer",
               ].join(" ")}
             >
               <span aria-hidden="true">{emoji}</span>

@@ -95,10 +95,12 @@ describe("EmotionPicker", () => {
   it("enforces a maximum of 3 selections", async () => {
     const user = userEvent.setup();
     render(<EmotionHarness />);
-    for (const name of [/anxious/i, /calm/i, /hopeful/i]) {
+    // Non-conflicting trio so all three actually select.
+    for (const name of [/anxious/i, /focused/i, /lonely/i]) {
       await user.click(screen.getByRole("button", { name }));
     }
-    const fourth = screen.getByRole("button", { name: /focused/i });
+    // Exhausted conflicts with none of them, so it's disabled purely by the max-3 rule.
+    const fourth = screen.getByRole("button", { name: /exhausted/i });
     expect(fourth).toBeDisabled();
     await user.click(fourth);
     expect(fourth).toHaveAttribute("aria-pressed", "false");

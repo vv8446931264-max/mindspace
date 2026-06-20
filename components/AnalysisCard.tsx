@@ -35,9 +35,9 @@ export default function AnalysisCard({ analysis }: Props) {
   const ExerciseIcon = EXERCISE_ICONS[ex.type] ?? CompassIcon;
 
   return (
-    <article className="tilt card-enter rounded-3xl bg-white/90 backdrop-blur border border-white shadow-[0_8px_30px_rgba(91,141,239,0.12)] overflow-hidden">
+    <article className="tilt card-enter glass rounded-3xl overflow-hidden">
       {/* Stress Triggers */}
-      <section className="reveal p-5 border-b border-slate-100" style={delay(0)}>
+      <section className="reveal p-5 border-b border-white/10" style={delay(0)}>
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <TargetIcon size={14} className="text-[#5B8DEF]" /> Stress Triggers Identified
         </h3>
@@ -50,7 +50,7 @@ export default function AnalysisCard({ analysis }: Props) {
               >
                 {i + 1}
               </span>
-              <span className="text-slate-700 text-sm leading-snug">
+              <span className="text-slate-200 text-sm leading-snug">
                 {trigger}
               </span>
             </li>
@@ -59,33 +59,33 @@ export default function AnalysisCard({ analysis }: Props) {
       </section>
 
       {/* Emotional Patterns */}
-      <section className="reveal p-5 border-b border-slate-100" style={delay(1)}>
+      <section className="reveal p-5 border-b border-white/10" style={delay(1)}>
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <SearchIcon size={14} className="text-[#5B8DEF]" /> What I&apos;m Noticing
         </h3>
-        <p className="text-slate-700 text-sm leading-relaxed">
+        <p className="text-slate-200 text-sm leading-relaxed">
           {analysis.emotionalPatterns}
         </p>
       </section>
 
       {/* Coping Strategy */}
-      <section className="reveal p-5 border-b border-slate-100" style={delay(2)}>
+      <section className="reveal p-5 border-b border-white/10" style={delay(2)}>
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <CompassIcon size={14} className="text-[#5B8DEF]" /> Coping Strategy for You
         </h3>
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 space-y-2.5 border border-blue-100/60">
+        <div className="bg-gradient-to-br from-[#5B8DEF]/15 to-[#7B6FE8]/10 rounded-2xl p-4 space-y-2.5 border border-[#5B8DEF]/25">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-bold text-slate-800">
+            <p className="font-bold text-white">
               {analysis.copingStrategy.title}
             </p>
-            <span className="flex items-center gap-1 text-xs font-medium text-[#5B8DEF] bg-white px-2.5 py-1 rounded-full border border-blue-100 whitespace-nowrap">
+            <span className="flex items-center gap-1 text-xs font-medium text-[#9db8ff] bg-white/10 px-2.5 py-1 rounded-full border border-white/15 whitespace-nowrap">
               <ClockIcon size={12} /> {analysis.copingStrategy.durationMinutes} min
             </span>
           </div>
-          <p className="text-slate-700 text-sm leading-relaxed">
+          <p className="text-slate-200 text-sm leading-relaxed">
             {analysis.copingStrategy.description}
           </p>
-          <p className="flex items-start gap-1.5 text-xs text-blue-800 bg-blue-100/70 px-3 py-2 rounded-xl leading-relaxed">
+          <p className="flex items-start gap-1.5 text-xs text-blue-100 bg-[#5B8DEF]/15 px-3 py-2 rounded-xl leading-relaxed">
             <BulbIcon size={14} className="mt-0.5 flex-shrink-0" />
             <span>{analysis.copingStrategy.examRelevance}</span>
           </p>
@@ -93,13 +93,13 @@ export default function AnalysisCard({ analysis }: Props) {
       </section>
 
       {/* Mindfulness Exercise */}
-      <section className="reveal p-5 border-b border-slate-100" style={delay(3)}>
+      <section className="reveal p-5 border-b border-white/10" style={delay(3)}>
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <ExerciseIcon size={14} className="text-[#52C9A0]" />{" "}
           {ex.durationMinutes}-Minute Practice
         </h3>
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 space-y-3 border border-emerald-100/60">
-          <p className="font-bold text-slate-800">{ex.name}</p>
+        <div className="bg-gradient-to-br from-[#52C9A0]/15 to-[#52C9A0]/5 rounded-2xl p-4 space-y-3 border border-[#52C9A0]/25">
+          <p className="font-bold text-white">{ex.name}</p>
           <ol className="space-y-2">
             {ex.steps.map((step, i) => (
               <li
@@ -138,7 +138,7 @@ export default function AnalysisCard({ analysis }: Props) {
       </section>
 
       {/* Disclaimer */}
-      <div className="px-5 py-3 bg-slate-50/80 border-t border-slate-100">
+      <div className="px-5 py-3 bg-white/5 border-t border-white/10">
         <p className="text-[11px] text-slate-400 italic text-center leading-relaxed">
           {analysis.disclaimer}
         </p>

@@ -61,11 +61,11 @@ export default function MoodPicker({ value, onChange, disabled }: Props) {
 
   return (
     <div className="space-y-2.5">
-      <label htmlFor={id} className="block text-sm font-semibold text-slate-700">
+      <label htmlFor={id} className="block text-sm font-semibold text-slate-200">
         How are you feeling today?
       </label>
 
-      <div className="flex items-center gap-3 rounded-2xl bg-slate-50/80 border border-slate-100 p-3">
+      <div className="flex items-center gap-3 rounded-2xl bg-white/5 border border-white/10 p-3">
         <span
           className="text-3xl select-none transition-transform"
           aria-hidden="true"
@@ -91,7 +91,7 @@ export default function MoodPicker({ value, onChange, disabled }: Props) {
             aria-valuetext={`Mood ${value} out of 10 — ${MOOD_LABEL[value]}`}
             className="w-full h-2.5 rounded-full appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2"
             style={{
-              background: `linear-gradient(to right, ${moodColor(value)} ${fillPct}%, #E2E8F0 ${fillPct}%)`,
+              background: `linear-gradient(to right, ${moodColor(value)} ${fillPct}%, rgba(255,255,255,0.12) ${fillPct}%)`,
             }}
           />
           <div className="flex justify-between items-center mt-1.5">

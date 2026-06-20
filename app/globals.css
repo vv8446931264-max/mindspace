@@ -1,23 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #eef2fb;
-  --foreground: #1e293b;
+  --background: #0e1430;
+  --foreground: #e7ecff;
   --font-jakarta: "Plus Jakarta Sans";
 }
 
 body {
   color: var(--foreground);
   font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Calming layered gradient mesh — soft blue + sage, like a clear study morning. */
+  /* Twilight canvas — same world as the landing hero, all the way down. */
   background-color: var(--background);
   background-image:
-    radial-gradient(at 8% 4%, rgba(91, 141, 239, 0.16) 0px, transparent 50%),
-    radial-gradient(at 92% 0%, rgba(82, 201, 160, 0.14) 0px, transparent 45%),
-    radial-gradient(at 75% 95%, rgba(129, 161, 245, 0.12) 0px, transparent 45%),
-    radial-gradient(at 5% 100%, rgba(82, 201, 160, 0.1) 0px, transparent 40%);
+    radial-gradient(60% 40% at 50% 0%, rgba(123, 111, 232, 0.28) 0px, transparent 60%),
+    radial-gradient(50% 35% at 88% 18%, rgba(82, 201, 160, 0.14) 0px, transparent 55%),
+    radial-gradient(60% 45% at 8% 70%, rgba(91, 141, 239, 0.18) 0px, transparent 60%),
+    linear-gradient(180deg, #0e1430 0%, #161c44 55%, #20285c 100%);
   background-attachment: fixed;
   min-height: 100vh;
+}
+
+/* Frosted dark-glass surfaces — tuned in one place. */
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.055);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+  .glass-soft {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #eef2ff;
+  }
+  .field::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
 }
 
 /* Custom range slider thumb */
@@ -103,7 +128,7 @@ input[type="range"]::-moz-range-thumb {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: #e8edf5;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .skeleton::after {

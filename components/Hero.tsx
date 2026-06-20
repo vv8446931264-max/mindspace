@@ -176,7 +176,7 @@ export default function Hero() {
       {/* Bottom fade into the bright workspace below */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-32"
-        style={{ background: "linear-gradient(180deg, transparent, #eef2fb)" }}
+        style={{ background: "linear-gradient(180deg, transparent, #161c44)" }}
         aria-hidden="true"
       />
     </section>
