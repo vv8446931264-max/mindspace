@@ -19,12 +19,7 @@ export default function HomePage() {
       </a>
 
       <main className="min-h-screen">
-        <AppHeader
-          streak={w.streak}
-          isDemoMode={w.isDemoMode}
-          hasHistory={w.moodHistory.length > 0}
-          trend={w.trend}
-        />
+        <AppHeader isDemoMode={w.isDemoMode} />
 
         <Hero />
 

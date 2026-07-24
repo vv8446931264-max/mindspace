@@ -93,9 +93,27 @@ const ResultsPanel = forwardRef<HTMLDivElement, Props>(function ResultsPanel(
         )}
       </div>
 
-      <div className="tilt glass rounded-3xl p-5">
-        <MoodChart history={moodHistory} />
-      </div>
+      {/*
+        Mood history is opt-in and collapsed by default. Self-monitoring of mood
+        reliably induces rumination in a subset of users, and for a student already
+        being ranked daily, a line with a downward slope is one more thing grading
+        them. Available on request, never pushed. See docs/ROADMAP-v2.md P0.3.
+      */}
+      {moodHistory.length > 0 && (
+        <details className="tilt glass rounded-3xl p-5 group">
+          <summary className="cursor-pointer list-none text-sm font-medium text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] rounded">
+            <span className="inline-flex items-center gap-2">
+              <span className="text-slate-500 transition-transform group-open:rotate-90" aria-hidden="true">
+                ›
+              </span>
+              Show my past entries
+            </span>
+          </summary>
+          <div className="mt-4">
+            <MoodChart history={moodHistory} />
+          </div>
+        </details>
+      )}
 
       <div className="tilt glass-soft rounded-2xl p-4">
         <p className="text-[11px] text-slate-400 font-semibold mb-2 uppercase tracking-wide">
