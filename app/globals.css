@@ -1,260 +1,856 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   REGISTERS — MindSpace design system
+   ----------------------------------------------------------------------------
+   Thesis: this is the page nobody grades.
+
+   Every sheet of paper in this student's life is an instrument of evaluation.
+   The ruled copy they write in for themselves is the one surface that isn't.
+   The app is that surface.
+
+   Falls out by construction — do NOT add these back:
+     no dashboards        no score rings       no progress bars
+     no red-as-status     no charts on the default surface
+     no celebration animation                  no backdrop-filter, ever
+
+   Two registers:
+     paper      — day.   Dark ink on a warm cream sheet.
+     lamplight  — night. Warm ink on a lamp-lit dark sheet.
+
+   One continuous control: --dim (0 = brightest, 1 = dimmest) re-tones every
+   surface and every ink together. Contrast floors are held at EVERY position
+   including both extremes — verified numerically, see docs/design-registers.md.
+
+   Floors: body >= 7:1 (WCAG AAA).  Everything else >= 4.5:1.
+   ========================================================================== */
+
+
+/* ── Tailwind v4: a variant for the night register ────────────────────────── */
+@custom-variant lamplight (&:where([data-theme="lamplight"], [data-theme="lamplight"] *));
+
+
+/* ============================================================================
+   1. TYPEFACE — Hind (ITF), harmonised Devanagari + Latin, two weights only.
+   ----------------------------------------------------------------------------
+   Devanagari must NEVER load on first paint. It is gated purely by
+   `unicode-range`: the browser downloads a face only when a codepoint inside
+   that face's range is actually rendered. An English or Hinglish session
+   renders no U+09xx, so no Devanagari request is ever made. No JS required.
+
+   Two traps this file avoids on purpose:
+     - U+20B9 (₹) is assigned to the LATIN face. If it lived only in the
+       Devanagari range, a single rupee sign in an English session would pull
+       down a 70 KB font.
+     - U+200C/200D (ZWNJ/ZWJ) are carved OUT of the Latin general-punctuation
+       range and left to Devanagari, which needs them for half-form shaping.
+
+   Files expected at /public/fonts/ (see docs/design-registers.md §Fonts):
+     hind-400-latin.woff2  ~16 KB    hind-400-deva.woff2  ~70 KB
+     hind-600-latin.woff2  ~16 KB    hind-600-deva.woff2  ~70 KB
+   Until they exist, the metric-matched fallback below renders and nothing
+   breaks — `font-display: swap` plus a real fallback face means no invisible
+   text at any point.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Hind";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/hind-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-200B, U+200E-206F,
+    U+2074, U+20AC, U+20B9, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Hind";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/hind-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-200B, U+200E-206F,
+    U+2074, U+20AC, U+20B9, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+/* Devanagari — deliberately excludes U+20B9 (see note above). */
+@font-face {
+  font-family: "Hind";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/hind-400-deva.woff2") format("woff2");
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+25CC,
+    U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+@font-face {
+  font-family: "Hind";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/hind-600-deva.woff2") format("woff2");
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+25CC,
+    U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+
+/* Metric-matched fallback so the swap does not reflow the page.
+   NOTE: these overrides are approximations against Hind's published metrics
+   (UPM 1000, tall ascender for matras). Re-measure with capsize/fontkit once
+   the woff2 is committed and correct here — see docs/design-registers.md. */
+@font-face {
+  font-family: "Hind Fallback";
+  src: local("Roboto"), local("Segoe UI"), local("Helvetica Neue"),
+    local("Arial");
+  ascent-override: 102.4%;
+  descent-override: 40%;
+  line-gap-override: 0%;
+  size-adjust: 96%;
+}
+
+
+/* ============================================================================
+   2. THE DIMMER
+   ----------------------------------------------------------------------------
+   --dim is a continuous luminance control, 0..1. It is NOT a light/dark
+   toggle — the register (paper | lamplight) is a separate axis. The app drives
+   one user-facing slider onto both; see docs/design-registers.md §The dimmer.
+
+   Every token is `color-mix(in oklab, <lit> (1-dim), <dark>)`. Because both
+   the ground and the ink move together, contrast never dips below its floor
+   anywhere in the range — this was sampled at 201 positions per pair, not
+   assumed from the endpoints.
+
+   Design position worth stating out loud: THE CONTRAST FLOOR WINS. Turning the
+   dimmer up darkens the ground almost to black (-78% surface luminance in
+   lamplight) but only dims the ink as far as 7:1 allows, then clamps. You
+   cannot dim your way into unreadable text.
+   ========================================================================== */
+
+@property --dim {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
 :root {
-  --background: #0e1430;
-  --foreground: #e7ecff;
-  --font-jakarta: "Plus Jakarta Sans";
+  --dim: 0;
+  --dim-lit: calc((1 - var(--dim)) * 100%);
+
+  /* ---- register: paper (day) — endpoints -------------------------------- */
+  --e-paper-lit:        #fbf8f1;  --e-paper-dark:        #c6bfb0;
+  --e-paper-raised-lit: #fefcf7;  --e-paper-raised-dark: #d2cbbc;
+  --e-paper-sunk-lit:   #f3efe4;  --e-paper-sunk-dark:   #bcb5a6;
+  --e-rule-lit:         #e2dccd;  --e-rule-dark:         #b0a897;
+  --e-margin-rule-lit:  #a25a2c;  --e-margin-rule-dark:  #6c3a18;
+  --e-ink-lit:          #16181d;  --e-ink-dark:          #0c0e11;
+  --e-ink-dim-lit:      #5c5749;  --e-ink-dim-dark:      #403c33;
+  --e-ink-second-lit:   #4a463c;  --e-ink-second-dark:   #2f2c26;
+  --e-marker-lit:       #8a5512;  --e-marker-dark:       #5e390b;
+  --e-on-marker-lit:    #fdfbf6;  --e-on-marker-dark:    #f2ede2;
+
+  color-scheme: light;
+}
+
+/* Night by system preference, only while the user has not chosen a register. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --e-paper-lit:        #221d17;  --e-paper-dark:        #0a0908;
+    --e-paper-raised-lit: #2c261e;  --e-paper-raised-dark: #131110;
+    --e-paper-sunk-lit:   #1a1611;  --e-paper-sunk-dark:   #060505;
+    --e-rule-lit:         #3c332a;  --e-rule-dark:         #211d19;
+    --e-margin-rule-lit:  #c98a55;  --e-margin-rule-dark:  #d9a06d;
+    --e-ink-lit:          #ede4d4;  --e-ink-dark:          #cfc5b4;
+    --e-ink-dim-lit:      #afa391;  --e-ink-dim-dark:      #9c9182;
+    --e-ink-second-lit:   #c9bda9;  --e-ink-second-dark:   #b4a897;
+    --e-marker-lit:       #e6bc7c;  --e-marker-dark:       #d9ae6c;
+    --e-on-marker-lit:    #1a1409;  --e-on-marker-dark:    #140f06;
+
+    color-scheme: dark;
+  }
+}
+
+/* Explicit choice always wins over the media query (higher specificity). */
+:root[data-theme="lamplight"] {
+  --e-paper-lit:        #221d17;  --e-paper-dark:        #0a0908;
+  --e-paper-raised-lit: #2c261e;  --e-paper-raised-dark: #131110;
+  --e-paper-sunk-lit:   #1a1611;  --e-paper-sunk-dark:   #060505;
+  --e-rule-lit:         #3c332a;  --e-rule-dark:         #211d19;
+  --e-margin-rule-lit:  #c98a55;  --e-margin-rule-dark:  #d9a06d;
+  --e-ink-lit:          #ede4d4;  --e-ink-dark:          #cfc5b4;
+  --e-ink-dim-lit:      #afa391;  --e-ink-dim-dark:      #9c9182;
+  --e-ink-second-lit:   #c9bda9;  --e-ink-second-dark:   #b4a897;
+  --e-marker-lit:       #e6bc7c;  --e-marker-dark:       #d9ae6c;
+  --e-on-marker-lit:    #1a1409;  --e-on-marker-dark:    #140f06;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="paper"] {
+  --e-paper-lit:        #fbf8f1;  --e-paper-dark:        #c6bfb0;
+  --e-paper-raised-lit: #fefcf7;  --e-paper-raised-dark: #d2cbbc;
+  --e-paper-sunk-lit:   #f3efe4;  --e-paper-sunk-dark:   #bcb5a6;
+  --e-rule-lit:         #e2dccd;  --e-rule-dark:         #b0a897;
+  --e-margin-rule-lit:  #a25a2c;  --e-margin-rule-dark:  #6c3a18;
+  --e-ink-lit:          #16181d;  --e-ink-dark:          #0c0e11;
+  --e-ink-dim-lit:      #5c5749;  --e-ink-dim-dark:      #403c33;
+  --e-ink-second-lit:   #4a463c;  --e-ink-second-dark:   #2f2c26;
+  --e-marker-lit:       #8a5512;  --e-marker-dark:       #5e390b;
+  --e-on-marker-lit:    #fdfbf6;  --e-on-marker-dark:    #f2ede2;
+
+  color-scheme: light;
+}
+
+/* ---- semantic tokens: static fallback (== dim 0) ------------------------- */
+:root {
+  --paper:        var(--e-paper-lit);
+  --paper-raised: var(--e-paper-raised-lit);
+  --paper-sunk:   var(--e-paper-sunk-lit);
+  --rule:         var(--e-rule-lit);
+  --margin-rule:  var(--e-margin-rule-lit);
+  --ink:          var(--e-ink-lit);
+  --ink-dim:      var(--e-ink-dim-lit);
+  --ink-second:   var(--e-ink-second-lit);
+  --marker:       var(--e-marker-lit);
+  --on-marker:    var(--e-on-marker-lit);
+  --marker-wash:  var(--e-paper-sunk-lit);
+}
+
+/* ---- semantic tokens: the dimmer ---------------------------------------- */
+@supports (color: color-mix(in oklab, #000 50%, #fff)) {
+  :root {
+    --paper:        color-mix(in oklab, var(--e-paper-lit)        var(--dim-lit), var(--e-paper-dark));
+    --paper-raised: color-mix(in oklab, var(--e-paper-raised-lit) var(--dim-lit), var(--e-paper-raised-dark));
+    --paper-sunk:   color-mix(in oklab, var(--e-paper-sunk-lit)   var(--dim-lit), var(--e-paper-sunk-dark));
+    --rule:         color-mix(in oklab, var(--e-rule-lit)         var(--dim-lit), var(--e-rule-dark));
+    --margin-rule:  color-mix(in oklab, var(--e-margin-rule-lit)  var(--dim-lit), var(--e-margin-rule-dark));
+    --ink:          color-mix(in oklab, var(--e-ink-lit)          var(--dim-lit), var(--e-ink-dark));
+    --ink-dim:      color-mix(in oklab, var(--e-ink-dim-lit)      var(--dim-lit), var(--e-ink-dim-dark));
+    --ink-second:   color-mix(in oklab, var(--e-ink-second-lit)   var(--dim-lit), var(--e-ink-second-dark));
+    --marker:       color-mix(in oklab, var(--e-marker-lit)       var(--dim-lit), var(--e-marker-dark));
+    --on-marker:    color-mix(in oklab, var(--e-on-marker-lit)    var(--dim-lit), var(--e-on-marker-dark));
+
+    /* highlighter / ::selection. 22% is the verified maximum — past it, ink
+       on the wash drops under 7:1 at one end of the dimmer or the other. */
+    --marker-wash:  color-mix(in oklab, var(--marker) 22%, var(--paper));
+  }
+}
+
+
+/* ============================================================================
+   3. SCALE — type, space, motion, touch
+   ========================================================================== */
+
+:root {
+  /* Type. rem throughout; the root size is the user's, never overridden. */
+  --t-micro: 0.8125rem;  /* 13px — legal / timestamps only. Never body.      */
+  --t-small: 0.9375rem;  /* 15px — marginalia, labels                        */
+  --t-body:  1.0625rem;  /* 17px — floor is 16, 17 is the target             */
+  --t-lead:  1.1875rem;  /* 19px — the composer, the student's own writing   */
+  --t-head:  1.375rem;   /* 22px                                             */
+  --t-title: 1.75rem;    /* 28px — fits 360px with room to spare             */
+
+  --w-normal: 400;
+  --w-strong: 600;       /* two weights. There is no third.                  */
+
+  /* Line height is per-script and set in §4. These are the Latin defaults. */
+  --lh: 1.6;
+  --lh-tight: 1.3;
+
+  --measure: 62ch;
+  --rule-step: calc(var(--t-body) * var(--lh));
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2.5rem;
+
+  /* The margin gutter. At 360px this resolves to 40px. */
+  --margin-w: clamp(2.5rem, 11vw, 3.5rem);
+  --sheet-max: calc(var(--measure) + var(--margin-w) + var(--space-4));
+
+  /* Paper has edges, not rounded corners. */
+  --radius: 2px;
+  --radius-tab: 4px;
+  --hairline: 1px;
+
+  /* Motion budget — all of it. */
+  --dur-fast: 120ms;
+  --dur: 180ms;                       /* hard ceiling 200ms                  */
+  --ease: cubic-bezier(0.2, 0, 0.2, 1);
+  --shift: 6px;                       /* hard ceiling 8px                    */
+
+  /* Touch */
+  --tap: 48px;
+  --tap-crisis: 56px;
+  --tap-gap: 8px;
+}
+
+
+/* ============================================================================
+   4. BASE
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Never set a px root size and never disable zoom. 200% must work. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scrollbar-color: var(--rule) var(--paper);
 }
 
 body {
-  color: var(--foreground);
-  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Twilight canvas — same world as the landing hero, all the way down. */
-  background-color: var(--background);
-  background-image:
-    radial-gradient(60% 40% at 50% 0%, rgba(123, 111, 232, 0.28) 0px, transparent 60%),
-    radial-gradient(50% 35% at 88% 18%, rgba(82, 201, 160, 0.14) 0px, transparent 55%),
-    radial-gradient(60% 45% at 8% 70%, rgba(91, 141, 239, 0.18) 0px, transparent 60%),
-    linear-gradient(180deg, #0e1430 0%, #161c44 55%, #20285c 100%);
-  background-attachment: fixed;
-  min-height: 100vh;
+  margin: 0;
+  min-height: 100svh;
+  background-color: var(--paper);
+  color: var(--ink);
+
+  font-family: "Hind", "Hind Fallback", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  font-size: var(--t-body);
+  font-weight: var(--w-normal);
+  line-height: var(--lh);
+  font-synthesis: none;          /* never fake-bold Devanagari              */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* Long unbroken tokens must not create horizontal scroll at 200% zoom. */
+  overflow-wrap: break-word;
+  hyphens: none;                 /* Devanagari must not be hyphenated       */
 }
 
-/* Frosted dark-glass surfaces — tuned in one place. */
-@layer components {
-  .glass {
-    background: rgba(255, 255, 255, 0.055);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  }
-  .glass-soft {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .field {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #eef2ff;
-  }
-  .field::placeholder {
-    color: rgba(255, 255, 255, 0.45);
-  }
+/* ---- Script-aware leading -----------------------------------------------
+   Attribute selectors, not :lang(). `:lang(hi)` also matches `hi-Latn` under
+   CSS language-range matching, which would give Hinglish the Devanagari
+   leading. `[lang|="hi"]:not([lang="hi-Latn"])` says what we actually mean.
+
+   Devanagari is NEVER letter-spaced: positive tracking breaks the शिरोरेखा,
+   the headline that joins the characters of a word.
+   ------------------------------------------------------------------------- */
+[lang|="hi"]:not([lang="hi-Latn"]) {
+  --lh: 1.78;
+  --lh-tight: 1.5;
+  --rule-step: calc(var(--t-body) * 1.78);
+  letter-spacing: 0;
+}
+[lang="hi-Latn"] {
+  --lh: 1.6;
+  --lh-tight: 1.3;
+  --rule-step: calc(var(--t-body) * 1.6);
 }
 
-/* Custom range slider thumb */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #5b8def;
-  cursor: pointer;
-  border: 3px solid white;
-  box-shadow: 0 2px 6px rgba(91, 141, 239, 0.4);
-  transition: transform 0.15s ease;
+/* Accessibility: increased spacing, Latin only. Research does not support
+   OpenDyslexic — it does not improve reading and can slow it — so the
+   accommodation offered here is spacing, which does have support. */
+.text-spacious:not([lang|="hi"]),
+.text-spacious [lang="hi-Latn"] {
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+  --lh: 1.75;
 }
 
-input[type="range"]:active::-webkit-slider-thumb {
-  transform: scale(1.15);
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: var(--w-strong);
+  line-height: var(--lh-tight);
+  letter-spacing: normal;
+  text-wrap: balance;
+}
+h1 { font-size: var(--t-title); }
+h2 { font-size: var(--t-head); }
+h3 { font-size: var(--t-lead); }
+h4 { font-size: var(--t-body); }
+
+p, ul, ol {
+  margin-block: 0 var(--space-4);
+  max-width: var(--measure);
+  text-align: left;              /* never justify: rivers, and worse in Deva */
 }
 
-input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #5b8def;
-  cursor: pointer;
-  border: 3px solid white;
-  box-shadow: 0 2px 6px rgba(91, 141, 239, 0.4);
+a {
+  color: var(--ink);
+  text-decoration-color: var(--marker);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
-/* ── Signature reveal: analysis sections stagger in like the app is thinking ── */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+::selection {
+  background: var(--marker-wash);
+  color: var(--ink);
 }
 
-@keyframes soft-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
+img, svg, video {
+  max-width: 100%;
+  height: auto;
 }
 
-@keyframes float-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+/* One focus treatment for the whole app. --marker clears 4.9:1 against every
+   surface at every dimmer position, well past the 3:1 focus requirement. */
+:focus-visible {
+  outline: 3px solid var(--marker);
+  outline-offset: 2px;
+  border-radius: var(--radius);
 }
+:focus:not(:focus-visible) { outline: none; }
 
-.reveal {
-  opacity: 0;
-  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.card-enter {
-  animation: float-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.pulse-once {
-  animation: soft-pulse 1.6s ease-in-out 0.6s;
-}
-
-/* Gentle shimmer for loading skeletons */
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.skeleton {
-  position: relative;
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.07);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
-.skeleton::after {
+
+/* ============================================================================
+   5. THE SHEET AND THE MARGIN
+   ----------------------------------------------------------------------------
+   The margin rule runs down the left edge of the content column on every
+   route, always. It is structural, not decorative: the crisis affordance
+   lives in it permanently, at thumb height. Nothing else may occupy it.
+   ========================================================================== */
+
+.sheet {
+  position: relative;
+  max-width: var(--sheet-max);
+  margin-inline: auto;
+  padding-inline: var(--margin-w) var(--space-4);
+  padding-block: var(--space-5);
+  min-height: 100svh;
+}
+
+/* The margin rule itself. Full-strength colour — never dilute a token with
+   `opacity`, it silently invalidates the measured contrast ratio. */
+.sheet::before {
   content: "";
   position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-  animation: shimmer 1.4s infinite;
-}
-
-/* ──────────────────────────────────────────────────────────
-   Landing hero — twilight 3D atmosphere ("night into morning")
-   ────────────────────────────────────────────────────────── */
-.hero-night {
-  background:
-    radial-gradient(60% 50% at 50% 8%, rgba(123, 111, 232, 0.35) 0%, transparent 60%),
-    radial-gradient(50% 40% at 85% 30%, rgba(82, 201, 160, 0.18) 0%, transparent 55%),
-    radial-gradient(70% 60% at 12% 75%, rgba(91, 141, 239, 0.22) 0%, transparent 60%),
-    linear-gradient(180deg, #0e1430 0%, #161c44 55%, #20285c 100%);
-}
-
-/* Stars / dust specks */
-.hero-stars {
-  background-image:
-    radial-gradient(1.5px 1.5px at 20% 30%, rgba(255, 255, 255, 0.7) 50%, transparent),
-    radial-gradient(1.5px 1.5px at 70% 20%, rgba(255, 255, 255, 0.5) 50%, transparent),
-    radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.6) 50%, transparent),
-    radial-gradient(1px 1px at 85% 60%, rgba(255, 255, 255, 0.45) 50%, transparent),
-    radial-gradient(1.5px 1.5px at 55% 85%, rgba(255, 255, 255, 0.5) 50%, transparent),
-    radial-gradient(1px 1px at 10% 55%, rgba(255, 255, 255, 0.5) 50%, transparent);
-  animation: twinkle 6s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.9; }
-}
-
-/* Box-breathing pulse: 4s in, hold, 4s out feel */
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.12); opacity: 1; }
-}
-.breathe { animation: breathe 8s ease-in-out infinite; }
-
-@keyframes breathe-ring {
-  0% { transform: scale(0.85); opacity: 0.55; }
-  70% { transform: scale(1.5); opacity: 0; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-.breathe-ring { animation: breathe-ring 8s ease-out infinite; }
-
-/* Gentle 3D drift for floating cards/orbs */
-@keyframes drift-a {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
-  50% { transform: translate3d(0, -18px, 0) rotate(1deg); }
-}
-@keyframes drift-b {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(3deg); }
-  50% { transform: translate3d(0, 14px, 0) rotate(-2deg); }
-}
-@keyframes drift-c {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(8px, -12px, 0); }
-}
-.drift-a { animation: drift-a 9s ease-in-out infinite; }
-.drift-b { animation: drift-b 11s ease-in-out infinite; }
-.drift-c { animation: drift-c 7.5s ease-in-out infinite; }
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-.bob { animation: bob 2.4s ease-in-out infinite; }
-
-.hero-fade-up {
-  opacity: 0;
-  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/* ──────────────────────────────────────────────────────────
-   Workspace atmosphere — drifting colour orbs glowing through
-   the frosted-glass cards, plus a 3D entrance + hover tilt.
-   ────────────────────────────────────────────────────────── */
-.orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(50px);
+  inset-block: 0;
+  inset-inline-start: calc(var(--margin-w) - 2px);
+  width: 2px;
+  background: var(--margin-rule);
   pointer-events: none;
-  will-change: transform;
 }
 
-/* 3D entrance — cards rise and rotate flat from a slight tilt */
-@keyframes float-in-3d {
-  from {
-    opacity: 0;
-    transform: perspective(1100px) translateY(34px) rotateX(7deg) scale(0.985);
+/* Ruled lines. Apply to the composer, not the whole page — a repeating
+   gradient over a full-height scroll surface is paint the budget GPU does
+   not need to do. It is still an order of magnitude cheaper than the
+   backdrop-filter this replaces. */
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--rule-step) - 1px),
+    var(--rule) calc(var(--rule-step) - 1px),
+    var(--rule) var(--rule-step)
+  );
+  background-position: 0 var(--rule-offset, 0);
+}
+
+.measure { max-width: var(--measure); }
+
+/* A bounded block on the sheet: a hairline, no fill difference, no shadow,
+   almost no radius. This is what replaces .glass. It must never read as a
+   floating card. */
+.leaf {
+  background: var(--paper);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+.leaf--raised { background: var(--paper-raised); }
+.leaf--plain  { border: 0; padding-inline: 0; }
+
+.hairline {
+  border: 0;
+  border-block-start: var(--hairline) solid var(--rule);
+  margin-block: var(--space-4);
+}
+
+
+/* ── The crisis affordance ─────────────────────────────────────────────────
+   Pinned to the margin rule, straddling it like a bookmark tab. ≥56×56.
+   At 360×800 its top edge lands ~104px from the bottom — inside the bottom
+   55% with room to spare, and inside comfortable thumb reach.
+   Present on 100% of routes; it belongs to the sheet, not to a page.
+
+   Two ways to mount it:
+     a) standalone — drop `.margin-crisis` anywhere; the math below centres it
+        on the rule. On desktop with a classic scrollbar it can sit up to
+        ~8px off, because 100vw counts the scrollbar and the sheet does not.
+     b) pixel-exact — wrap it in `.margin-rail`, which centres the same way
+        `.sheet` does. Preferred if you already have a layout shell.          */
+.margin-crisis {
+  position: fixed;
+  z-index: 50;
+  bottom: max(var(--space-5), calc(env(safe-area-inset-bottom, 0px) + 6vh));
+  inset-inline-start: calc(
+    max(0px, (100vw - var(--sheet-max)) / 2)
+    + var(--margin-w) - 1px - var(--tap-crisis) / 2
+  );
+
+  display: grid;
+  place-items: center;
+  width: var(--tap-crisis);
+  height: var(--tap-crisis);
+
+  background: var(--paper-raised);
+  color: var(--margin-rule);
+  border: 2px solid var(--margin-rule);
+  border-radius: var(--radius-tab);
+
+  text-decoration: none;
+  font-size: var(--t-small);
+  font-weight: var(--w-strong);
+  line-height: 1.1;
+  text-align: center;
+
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.margin-crisis:active { transform: scale(0.96); }
+
+/* Optional exact-alignment shell. Centres on the same axis as `.sheet`, so
+   the tab lands on the rule regardless of scrollbar width. */
+.margin-rail {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  max-width: var(--sheet-max);
+  margin-inline: auto;
+  pointer-events: none;
+}
+.margin-rail > .margin-crisis {
+  position: absolute;
+  inset-inline-start: calc(var(--margin-w) - 1px - var(--tap-crisis) / 2);
+  pointer-events: auto;
+}
+
+
+/* ============================================================================
+   6. MARGINALIA — the most important element in the system
+   ----------------------------------------------------------------------------
+   The AI's output is a note in the margin in a second ink. It is NOT a card.
+   A card frames the AI as an authority delivering a verdict; a margin note
+   frames it as someone reading over your shoulder. That difference is the
+   whole product.
+
+   Therefore, and non-negotiably:
+     no background fill        no border box       no shadow
+     no radius                 no icon-in-a-circle no "AI" badge chrome
+   What it has instead: a second ink, a smaller size, a hanging rule, and an
+   indent. That is the entire vocabulary.
+
+   Markup:
+     <div class="annotated">
+       <p>…the student's own words…</p>
+       <aside class="marginalia">
+         <span class="marginalia__src">noticed</span>
+         …the note…
+       </aside>
+     </div>
+   ========================================================================== */
+
+.annotated {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-5);
+}
+
+.marginalia {
+  color: var(--ink-second);
+  font-size: var(--t-small);
+  line-height: var(--lh);
+  max-width: 46ch;
+
+  /* The rule hangs outside the paragraph's left edge, in the gutter. */
+  padding-inline-start: var(--space-3);
+  margin-inline-start: calc(var(--space-3) * -1);
+  border-inline-start: 2px solid var(--rule);
+
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.marginalia p { max-width: none; margin-block-end: var(--space-2); }
+.marginalia p:last-child { margin-block-end: 0; }
+
+/* Who is speaking. Lower-case, no colon, no icon — an annotation, not a
+   header. Never the word "Analysis", never a score. */
+.marginalia__src {
+  display: block;
+  font-size: var(--t-micro);
+  font-weight: var(--w-strong);
+  color: var(--ink-dim);
+  margin-block-end: var(--space-1);
+}
+
+/* Wide screens: the note moves into a true outer column beside the text,
+   exactly as it would be written in the margin of the page. Below this it is
+   an inline aside with a hanging rule — including at the 360px canvas. */
+@media (min-width: 62rem) {
+  :root { --sheet-max: calc(var(--measure) + var(--margin-w) + 22rem); }
+
+  .annotated {
+    grid-template-columns: minmax(0, var(--measure)) minmax(0, 18rem);
+    column-gap: var(--space-5);
+    align-items: start;
   }
-  to {
-    opacity: 1;
-    transform: perspective(1100px) translateY(0) rotateX(0) scale(1);
+  .marginalia {
+    margin-inline-start: 0;
+    margin-block: 0;
   }
 }
-.float-in {
-  opacity: 0;
-  animation: float-in-3d 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+
+/* ============================================================================
+   7. CONTROLS
+   ----------------------------------------------------------------------------
+   Primary actions belong in the bottom third of the viewport. ≥48px targets,
+   ≥8px between them, 56px for anything crisis-adjacent.
+   ========================================================================== */
+
+.tap,
+.btn,
+button,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: color-mix(in oklab, var(--marker) 18%, transparent);
+  font: inherit;
 }
 
-/* Subtle interactive 3D tilt + lift on the glass cards */
-.tilt {
-  transform: perspective(900px);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.4s ease;
-  will-change: transform;
-}
-.tilt:hover {
-  transform: perspective(900px) translateY(-5px) rotateX(2.2deg) rotateY(-2.2deg);
+.tap        { min-width: var(--tap);        min-height: var(--tap); }
+.tap-crisis { min-width: var(--tap-crisis); min-height: var(--tap-crisis); }
+.tap-row    { display: flex; flex-wrap: wrap; gap: var(--tap-gap); }
+
+/* Actions sit in the bottom third. Use on the composer's action row. */
+.action-dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tap-gap);
+  padding-block: var(--space-3);
+  padding-bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+  border-block-start: var(--hairline) solid var(--rule);
 }
 
-/* Reduced motion — disable all animation + transitions */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding-inline: var(--space-4);
+
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: var(--hairline) solid var(--ink-dim);
+  border-radius: var(--radius);
+
+  font-size: var(--t-body);
+  font-weight: var(--w-strong);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease),
+              background-color var(--dur-fast) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+.btn--marker {
+  background: var(--marker);
+  color: var(--on-marker);
+  border-color: var(--marker);
+}
+
+.btn--quiet {
+  background: none;
+  border-color: transparent;
+  color: var(--ink-dim);
+  font-weight: var(--w-normal);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+
+/* Text entry. The student's own writing gets the largest comfortable size
+   in the app — it is the only thing on the page that matters. */
+.field {
+  display: block;
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-3);
+
+  background: var(--paper-sunk);
+  color: var(--ink);
+  border: var(--hairline) solid var(--rule);
+  border-block-end-width: 2px;
+  border-block-end-color: var(--ink-dim);
+  border-radius: var(--radius);
+
+  font-size: var(--t-body);
+  line-height: var(--lh);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.field::placeholder { color: var(--ink-dim); opacity: 1; }
+.field:focus { border-block-end-color: var(--marker); }
+
+.entry {
+  font-size: var(--t-lead);
+  line-height: var(--lh);
+  background: none;
+  border: 0;
+  resize: none;
+  width: 100%;
+  color: var(--ink);
+}
+.entry:focus { outline-offset: 6px; }
+
+/* ---- The dimmer control -------------------------------------------------- */
+.dimmer {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-height: var(--tap);
+  background: none;
+  cursor: pointer;
+}
+.dimmer::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--ink-dim), var(--rule));
+}
+.dimmer::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--ink-dim), var(--rule));
+}
+.dimmer::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px; height: 24px;
+  margin-top: -10px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  border: 2px solid var(--ink);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.dimmer::-moz-range-thumb {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  border: 2px solid var(--ink);
+}
+.dimmer:active::-webkit-slider-thumb { transform: scale(1.1); }
+
+/* Generic range inputs inherit the same treatment. */
+input[type="range"]:not(.dimmer) { min-height: var(--tap); accent-color: var(--marker); }
+
+
+/* ============================================================================
+   8. MOTION — the entire budget
+   ----------------------------------------------------------------------------
+     transform and opacity only        ≤200ms        ≤8px displacement
+     one animated element at a time    fully interruptible
+     off under prefers-reduced-motion  never `transition: all`
+   There are no celebration animations. Nothing here rewards the user for
+   using the app.
+   ========================================================================== */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(var(--shift)); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The single entrance animation. Apply to ONE container, never to each child
+   with a stagger — a stagger is N animated elements, which is over budget. */
+.rise {
+  animation: rise var(--dur) var(--ease) both;
+}
+
+/* The one sanctioned looping indicator: a single element, opacity only, no
+   displacement. Use instead of a spinner or a shimmer. */
+@keyframes pending {
+  50% { opacity: 1; }
+}
+.pending {
+  opacity: 0.4;
+  animation: pending 1.2s var(--ease) infinite;
+}
+
+/* Loading placeholders are static. The shimmer sweep this replaces was an
+   infinite animation on N elements at once — over budget several times over,
+   and it makes a slow connection feel busier than it is. */
+.skeleton {
+  background: var(--paper-sunk);
+  border-block-end: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+}
+
+
+/* ============================================================================
+   9. TAILWIND v4 THEME BRIDGE
+   ----------------------------------------------------------------------------
+   `inline` is required: it makes Tailwind emit `var(--paper)` rather than
+   snapshotting the value at build time, so utilities keep tracking the dimmer
+   and the register at runtime.
+   ========================================================================== */
+
+@theme inline {
+  --color-paper:        var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-sunk:   var(--paper-sunk);
+  --color-rule:         var(--rule);
+  --color-margin-rule:  var(--margin-rule);
+  --color-ink:          var(--ink);
+  --color-ink-dim:      var(--ink-dim);
+  --color-ink-second:   var(--ink-second);
+  --color-marker:       var(--marker);
+  --color-on-marker:    var(--on-marker);
+  --color-marker-wash:  var(--marker-wash);
+
+  --font-sans: "Hind", "Hind Fallback", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+
+  --text-micro: var(--t-micro);
+  --text-small: var(--t-small);
+  --text-body:  var(--t-body);
+  --text-lead:  var(--t-lead);
+  --text-head:  var(--t-head);
+  --text-title: var(--t-title);
+
+  --radius-sheet: var(--radius);
+  --radius-tab:   var(--radius-tab);
+
+  --spacing-tap:        var(--tap);
+  --spacing-tap-crisis: var(--tap-crisis);
+  --spacing-margin:     var(--margin-w);
+
+  --ease-register: var(--ease);
+}
+
+
+/* ============================================================================
+   10. REDUCED MOTION
+   ========================================================================== */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -262,28 +858,75 @@ input[type="range"]::-moz-range-thumb {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+  .rise    { opacity: 1 !important; transform: none !important; }
+  .pending { opacity: 0.7 !important; animation: none !important; }
+  .btn:active,
+  .margin-crisis:active { transform: none !important; }
+}
+
+
+/* ============================================================================
+   11. PRINT — a register prints as a register.
+   ========================================================================== */
+
+@media print {
+  :root { --dim: 0; }
+  body { background: #fff; color: #000; }
+  .margin-crisis, .action-dock, .dimmer { display: none !important; }
+  .marginalia { border-inline-start-color: #999; color: #333; }
+}
+
+
+/* ============================================================================
+   12. COMPATIBILITY SHIM — DELETE ONCE COMPONENTS ARE MIGRATED
+   ----------------------------------------------------------------------------
+   The dark-glassmorphism rules are gone. These aliases exist ONLY so the app
+   is not unreadable during the component migration. Every one of them is
+   listed in docs/design-registers.md §Class inventory with its replacement.
+
+   Migration is done when this entire block can be deleted and nothing in
+   components/ or app/ references the names below.
+   ========================================================================== */
+
+@layer components {
+  /* surfaces → .leaf */
+  .glass,
+  .glass-soft {
+    background: var(--paper);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+
+  /* entrances → .rise (single container, no stagger) */
   .reveal,
   .card-enter,
+  .float-in,
   .hero-fade-up {
-    opacity: 1 !important;
-    transform: none !important;
+    animation: rise var(--dur) var(--ease) both;
+    animation-delay: 0s !important;   /* kill inline stagger delays */
   }
-  .breathe,
-  .breathe-ring,
-  .drift-a,
-  .drift-b,
-  .drift-c,
+
+  /* atmosphere → nothing. These have no equivalent by design. */
+  .orb,
+  .hero-stars {
+    display: none !important;
+  }
+  .hero-night {
+    background: var(--paper) !important;
+  }
+  .drift-a, .drift-b, .drift-c,
+  .breathe, .breathe-ring,
   .bob,
-  .hero-stars,
-  .orb {
+  .pulse-once {
     animation: none !important;
-  }
-  .float-in {
-    opacity: 1 !important;
     transform: none !important;
   }
-  .tilt:hover {
-    transform: perspective(900px) translateY(-2px) !important;
+  .tilt {
+    transform: none !important;
+    transition: none !important;
   }
+  .tilt:hover { transform: none !important; }
 }
