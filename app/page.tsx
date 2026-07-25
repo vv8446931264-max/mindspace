@@ -24,31 +24,19 @@ export default function HomePage() {
 
         <Hero />
 
-        <div id="how-it-works" className="relative scroll-mt-20">
-          {/* Ambient floating orbs — glow through the frosted cards */}
+        <div id="how-it-works" className="relative scroll-mt-20" style={{ background: "var(--paper)" }}>
+          {/* Margin rule — extends from Hero down through the content zone */}
           <div
-            className="pointer-events-none absolute inset-0 overflow-hidden"
+            className="pointer-events-none absolute left-8 sm:left-12 top-0 bottom-0 w-px hidden sm:block"
+            style={{ background: "var(--margin-rule)", opacity: 0.4 }}
             aria-hidden="true"
-          >
-            <span
-              className="orb drift-a w-72 h-72 left-[-4%] top-[6%]"
-              style={{ background: "rgba(91,141,239,0.28)" }}
-            />
-            <span
-              className="orb drift-b w-80 h-80 right-[-6%] top-[24%]"
-              style={{ background: "rgba(82,201,160,0.22)" }}
-            />
-            <span
-              className="orb drift-c w-64 h-64 left-[30%] bottom-[4%]"
-              style={{ background: "rgba(123,111,232,0.2)" }}
-            />
-          </div>
+          />
 
           <div className="relative max-w-5xl mx-auto px-4 py-10 sm:py-14 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
           <section
             aria-label="Journal entry form"
             id="journal-form"
-            className="scroll-mt-24 float-in"
+            className="scroll-mt-24 rise"
           >
             <JournalForm
               examContext={w.examContext}
@@ -72,11 +60,11 @@ export default function HomePage() {
             evidence-backed core (PRIDE, d=1.47) and the answer to the measured
             deficit — ~50% avoidance coping. See docs/ROADMAP-v2.md P1.2.
           */}
-          <div className="md:col-start-1 float-in" style={{ animationDelay: "60ms" }}>
+          <div className="md:col-start-1 rise">
             <ProblemSolver />
           </div>
 
-          <div className="float-in" style={{ animationDelay: "120ms" }}>
+          <div className="rise">
             <ResultsPanel
               ref={w.resultsRef}
               appState={w.appState}

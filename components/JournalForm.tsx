@@ -23,8 +23,7 @@ type Props = {
   onSubmit: (e: React.FormEvent) => void;
 };
 
-const FOCUS_RING =
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-1";
+const FOCUS_RING = "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 /** The full journaling form: exam, mood, emotions, study hours, and free text. */
 export default function JournalForm({
@@ -47,7 +46,7 @@ export default function JournalForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="tilt glass rounded-3xl p-6 space-y-5"
+      className="leaf rounded-2xl p-6 space-y-5"
       noValidate
     >
       {/*
@@ -60,10 +59,10 @@ export default function JournalForm({
         See docs/ROADMAP-v2.md P1.
       */}
       <div>
-        <h2 className="text-lg font-extrabold text-white tracking-tight">
+        <h2 className="text-lg font-semibold tracking-tight" style={{ color: "var(--ink)" }}>
           Today&apos;s check-in
         </h2>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs mt-0.5" style={{ color: "var(--ink-dim)" }}>
           Start with the work. Nothing here is shared with anyone.
         </p>
       </div>
@@ -71,7 +70,8 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="examContext"
-          className="block text-sm font-medium text-slate-200"
+          className="block text-sm font-medium"
+          style={{ color: "var(--ink-second)" }}
         >
           I&apos;m preparing for
         </label>
@@ -93,10 +93,11 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="studyHours"
-          className="block text-sm font-medium text-slate-200"
+          className="block text-sm font-medium"
+          style={{ color: "var(--ink-second)" }}
         >
           Study hours today:{" "}
-          <span className="font-bold text-[#5B8DEF]">{studyHours}h</span>
+          <span className="font-semibold" style={{ color: "var(--marker)" }}>{studyHours}h</span>
         </label>
         <input
           id="studyHours"
@@ -111,9 +112,10 @@ export default function JournalForm({
           aria-valuemax={18}
           aria-valuenow={studyHours}
           aria-valuetext={`${studyHours} hours`}
-          className={`w-full h-2 rounded-full appearance-none cursor-pointer bg-white/10 disabled:opacity-50 focus-visible:ring-offset-2 ${FOCUS_RING}`}
+          className={`w-full h-1.5 rounded-full appearance-none cursor-pointer disabled:opacity-50 focus-visible:ring-offset-2 ${FOCUS_RING}`}
+          style={{ background: "var(--rule)" }}
         />
-        <div className="flex justify-between text-xs text-slate-400">
+        <div className="flex justify-between text-xs" style={{ color: "var(--ink-dim)" }}>
           <span>0h</span>
           <span>9h</span>
           <span>18h</span>
@@ -123,7 +125,8 @@ export default function JournalForm({
       <div className="space-y-1.5">
         <label
           htmlFor="journalText"
-          className="block text-sm font-medium text-slate-200"
+          className="block text-sm font-medium"
+          style={{ color: "var(--ink-second)" }}
         >
           What&apos;s on your mind?
         </label>
@@ -134,22 +137,18 @@ export default function JournalForm({
           disabled={isAnalyzing}
           placeholder="Write freely — how did today go? What's weighing on you? What went well?"
           rows={5}
-          // Romanised Hindi has no fixed spelling, so a spellchecker underlines
-          // most of an honest Hinglish sentence in red. Variance is the norm
-          // here, not error. See docs/ROADMAP-v2.md P3.2.
           spellCheck={false}
           aria-describedby="charCount journalHint"
           className={`field w-full rounded-lg px-3 py-2 text-sm resize-none disabled:opacity-50 ${FOCUS_RING}`}
         />
         <div className="flex justify-between items-center">
-          <p id="journalHint" className="text-xs text-slate-400">
+          <p id="journalHint" className="text-xs" style={{ color: "var(--ink-dim)" }}>
             Be specific — more context means better insights
           </p>
           <span
             id="charCount"
-            className={`text-xs tabular-nums ${
-              journalText.length > 900 ? "text-amber-500" : "text-slate-400"
-            }`}
+            className="text-xs tabular-nums"
+            style={{ color: journalText.length > 900 ? "var(--margin-rule)" : "var(--ink-dim)" }}
             aria-live="polite"
             aria-label={`${journalText.length} of ${MAX_CHARS} characters used`}
           >
@@ -157,7 +156,7 @@ export default function JournalForm({
           </span>
         </div>
         {fieldErrors.text && (
-          <p className="text-xs text-red-500" role="alert">
+          <p className="text-xs" style={{ color: "var(--margin-rule)" }} role="alert">
             {fieldErrors.text[0]}
           </p>
         )}
@@ -167,19 +166,24 @@ export default function JournalForm({
         Feelings come last and are optional. Students disclose emotionally only
         after entering academically — requiring it up front is the barrier.
       */}
-      <details className="group rounded-lg border border-white/10 bg-white/5">
+      <details
+        className="group rounded-lg border"
+        style={{ background: "var(--paper-sunk)", borderColor: "var(--rule)" }}
+      >
         <summary
-          className={`cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-slate-200 rounded-lg ${FOCUS_RING}`}
+          className={`cursor-pointer list-none px-3 py-2.5 text-sm font-medium rounded-lg ${FOCUS_RING}`}
+          style={{ color: "var(--ink-second)" }}
         >
           <span className="inline-flex items-center gap-2">
             <span
-              className="text-slate-500 transition-transform group-open:rotate-90"
+              className="transition-transform group-open:rotate-90"
+              style={{ color: "var(--ink-dim)" }}
               aria-hidden="true"
             >
               ›
             </span>
             Add how you&apos;re feeling
-            <span className="text-xs font-normal text-slate-400">optional</span>
+            <span className="text-xs font-normal" style={{ color: "var(--ink-dim)" }}>optional</span>
           </span>
         </summary>
 
@@ -206,11 +210,12 @@ export default function JournalForm({
           key={flag.type}
           role="status"
           aria-live="polite"
-          className={`text-xs px-3 py-2 rounded-lg border ${
-            flag.severity === "caution"
-              ? "bg-amber-500/15 border-amber-400/40 text-amber-200"
-              : "bg-[#5B8DEF]/15 border-[#5B8DEF]/40 text-blue-200"
-          }`}
+          className="text-xs px-3 py-2 rounded-lg border"
+          style={{
+            background: "var(--marker-wash)",
+            borderColor: "var(--rule)",
+            color: "var(--ink-second)",
+          }}
         >
           {flag.message}
         </div>
@@ -219,30 +224,15 @@ export default function JournalForm({
       <button
         type="submit"
         disabled={isAnalyzing}
-        className="w-full bg-gradient-to-r from-[#5B8DEF] to-[#7B6FE8] hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
+        className="w-full font-semibold py-3.5 px-4 rounded-xl transition-opacity duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
+        style={{ background: "var(--marker)", color: "var(--on-marker)" }}
         aria-busy={isAnalyzing}
       >
         {isAnalyzing ? (
           <>
-            <svg
-              className="animate-spin h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
+            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
             <span>Analyzing your day…</span>
           </>

@@ -44,23 +44,19 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-medium text-slate-200">
+      <legend className="text-sm font-medium" style={{ color: "var(--ink-second)" }}>
         How you&apos;re feeling{" "}
-        <span className="text-slate-400 font-normal">
+        <span className="font-normal" style={{ color: "var(--ink-dim)" }}>
           (up to 3, or skip)
         </span>
         {maxReached && (
-          <span className="ml-2 text-xs text-amber-300 font-normal">
+          <span className="ml-2 text-xs font-normal" style={{ color: "var(--marker)" }}>
             Max 3 selected
           </span>
         )}
       </legend>
 
-      <div
-        className="grid grid-cols-2 gap-2 sm:grid-cols-3"
-        role="group"
-        aria-label="Emotion tags"
-      >
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="group" aria-label="Emotion tags">
         {EMOTIONS.map(({ tag, label, emoji }) => {
           const isSelected = selected.includes(tag);
           const isConflict = !isSelected && conflicting.includes(tag);
@@ -73,26 +69,19 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
               type="button"
               aria-pressed={isSelected}
               disabled={isDisabled}
-              title={
-                conflictSource ? getConflictReason(tag, conflictSource) : undefined
-              }
+              title={conflictSource ? getConflictReason(tag, conflictSource) : undefined}
               onClick={() => toggle(tag)}
               onKeyDown={(e) => {
-                if (e.key === " " || e.key === "Enter") {
-                  e.preventDefault();
-                  toggle(tag);
-                }
+                if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(tag); }
               }}
-              className={[
-                "flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-all",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-1",
-                "border",
+              className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-sm font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+              style={
                 isSelected
-                  ? "bg-[#5B8DEF] text-white border-[#5B8DEF] shadow-sm"
+                  ? { background: "var(--marker)", color: "var(--on-marker)", borderColor: "var(--marker)" }
                   : isDisabled
-                  ? "bg-white/[0.03] text-slate-500 border-white/10 cursor-not-allowed"
-                  : "bg-white/5 text-slate-200 border-white/12 hover:border-[#5B8DEF] hover:text-[#9db8ff] cursor-pointer",
-              ].join(" ")}
+                  ? { background: "var(--paper-sunk)", color: "var(--ink-dim)", borderColor: "var(--rule)", cursor: "not-allowed", opacity: 0.5 }
+                  : { background: "var(--paper-sunk)", color: "var(--ink-second)", borderColor: "var(--rule)", cursor: "pointer" }
+              }
             >
               <span aria-hidden="true">{emoji}</span>
               <span>{label}</span>

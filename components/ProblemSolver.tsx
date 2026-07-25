@@ -4,8 +4,7 @@ import { useState } from "react";
 import { STEPS, currentStepIndex, isStepAnswered, isComplete, progress } from "@/lib/problemSolving";
 import type { Answers } from "@/lib/problemSolving";
 
-const FOCUS_RING =
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
+const FOCUS_RING = "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 /**
  * Guided problem-solving, one question at a time.
@@ -43,15 +42,19 @@ export default function ProblemSolver() {
 
   if (finished) {
     return (
-      <section className="glass rounded-3xl p-6 space-y-4" aria-label="Your plan">
-        <h2 className="text-lg font-extrabold text-white tracking-tight">Your plan</h2>
+      <section
+        className="leaf rounded-2xl p-6 space-y-4"
+        style={{ borderColor: "var(--rule)" }}
+        aria-label="Your plan"
+      >
+        <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>Your plan</h2>
         <dl className="space-y-3">
           {STEPS.map((s) => (
-            <div key={s.id}>
-              <dt className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+            <div key={s.id} className="pl-3 border-l-2" style={{ borderColor: "var(--margin-rule)" }}>
+              <dt className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--ink-dim)" }}>
                 {s.question}
               </dt>
-              <dd className="text-sm text-slate-200 leading-relaxed mt-0.5">
+              <dd className="text-sm leading-relaxed mt-0.5" style={{ color: "var(--ink-second)" }}>
                 {answers[s.id]}
               </dd>
             </div>
@@ -59,11 +62,9 @@ export default function ProblemSolver() {
         </dl>
         <button
           type="button"
-          onClick={() => {
-            setAnswers({});
-            setIndex(0);
-          }}
-          className={`min-h-[44px] text-sm text-slate-300 underline hover:text-white rounded px-1 ${FOCUS_RING}`}
+          onClick={() => { setAnswers({}); setIndex(0); }}
+          className={`min-h-[44px] text-sm underline rounded px-1 ${FOCUS_RING}`}
+          style={{ color: "var(--ink-dim)" }}
         >
           Work through another one
         </button>
@@ -72,13 +73,16 @@ export default function ProblemSolver() {
   }
 
   return (
-    <section className="glass rounded-3xl p-6 space-y-4" aria-label="Work through a problem">
+    <section
+      className="leaf rounded-2xl p-6 space-y-4"
+      style={{ borderColor: "var(--rule)" }}
+      aria-label="Work through a problem"
+    >
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-lg font-extrabold text-white tracking-tight">
+        <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
           Work through one thing
         </h2>
-        {/* Always-visible step count — never hide the length of a multi-step flow. */}
-        <span className="text-xs text-slate-400 tabular-nums" aria-live="polite">
+        <span className="text-xs tabular-nums" style={{ color: "var(--ink-dim)" }} aria-live="polite">
           Step {index + 1} of {total}
           <span className="sr-only">, {done} answered</span>
         </span>
@@ -87,7 +91,8 @@ export default function ProblemSolver() {
       <div className="space-y-1.5">
         <label
           htmlFor={`ps-${step.id}`}
-          className="block text-sm font-medium text-slate-200"
+          className="block text-sm font-medium"
+          style={{ color: "var(--ink-second)" }}
         >
           {step.question}
         </label>
@@ -101,7 +106,7 @@ export default function ProblemSolver() {
           aria-describedby={`ps-hint-${step.id}`}
           className={`field w-full rounded-lg px-3 py-2 text-sm resize-none ${FOCUS_RING}`}
         />
-        <p id={`ps-hint-${step.id}`} className="text-xs text-slate-400">
+        <p id={`ps-hint-${step.id}`} className="text-xs" style={{ color: "var(--ink-dim)" }}>
           {step.hint}
         </p>
       </div>
@@ -111,7 +116,8 @@ export default function ProblemSolver() {
           <button
             type="button"
             onClick={back}
-            className={`min-h-[48px] px-4 rounded-xl text-sm text-slate-300 border border-white/10 hover:border-white/25 ${FOCUS_RING}`}
+            className={`min-h-[48px] px-4 rounded-xl text-sm border ${FOCUS_RING}`}
+            style={{ color: "var(--ink-second)", borderColor: "var(--rule)" }}
           >
             Back
           </button>
@@ -120,7 +126,8 @@ export default function ProblemSolver() {
           type="button"
           onClick={next}
           disabled={!canAdvance}
-          className={`min-h-[48px] flex-1 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#5B8DEF] to-[#7B6FE8] disabled:opacity-40 disabled:cursor-not-allowed ${FOCUS_RING}`}
+          className={`min-h-[48px] flex-1 px-4 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed ${FOCUS_RING}`}
+          style={{ background: "var(--marker)", color: "var(--on-marker)" }}
         >
           {atLast ? "Done" : "Next"}
         </button>
