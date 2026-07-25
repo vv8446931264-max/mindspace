@@ -106,7 +106,11 @@ export async function analyzeEntry(
 
   const userContent = `Exam: ${entry.examContext}
 Mood today: ${entry.moodLevel}/10
-Emotions selected: ${entry.emotions.join(", ")}
+Emotions selected: ${
+    entry.emotions.length > 0
+      ? entry.emotions.join(", ")
+      : "none — the student chose not to tag feelings, so infer from their words alone and do not comment on the omission"
+  }
 Study hours today: ${entry.studyHoursToday}h
 Journal entry: ${entry.text}`;
 

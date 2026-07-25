@@ -47,7 +47,7 @@ export default function EmotionPicker({ selected, onChange, disabled }: Props) {
       <legend className="text-sm font-medium text-slate-200">
         How you&apos;re feeling{" "}
         <span className="text-slate-400 font-normal">
-          (pick 1–3)
+          (up to 3, or skip)
         </span>
         {maxReached && (
           <span className="ml-2 text-xs text-amber-300 font-normal">

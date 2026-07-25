@@ -50,12 +50,21 @@ export default function JournalForm({
       className="tilt glass rounded-3xl p-6 space-y-5"
       noValidate
     >
+      {/*
+        Academic front door. Kota counselling data: students walk in saying
+        "time management" (45%) and "low marks" (35%); only 17% ever raise
+        suicidal thoughts, and only after entering through an academic door.
+        A mood slider as the first field asks the student to self-identify as
+        mentally unwell before they can use the app — which, where the available
+        label is "pagal", excludes exactly the people most at risk.
+        See docs/ROADMAP-v2.md P1.
+      */}
       <div>
         <h2 className="text-lg font-extrabold text-white tracking-tight">
-          How&apos;s your day going?
+          Today&apos;s check-in
         </h2>
         <p className="text-xs text-slate-400 mt-0.5">
-          Be honest — this is your private space.
+          Start with the work. Nothing here is shared with anyone.
         </p>
       </div>
 
@@ -79,21 +88,6 @@ export default function JournalForm({
             </option>
           ))}
         </select>
-      </div>
-
-      <MoodPicker value={moodLevel} onChange={setMoodLevel} disabled={isAnalyzing} />
-
-      <div>
-        <EmotionPicker
-          selected={emotions}
-          onChange={setEmotions}
-          disabled={isAnalyzing}
-        />
-        {fieldErrors.emotions && (
-          <p className="text-xs text-red-500 mt-1" role="alert">
-            {fieldErrors.emotions[0]}
-          </p>
-        )}
       </div>
 
       <div className="space-y-1.5">
@@ -164,6 +158,44 @@ export default function JournalForm({
           </p>
         )}
       </div>
+
+      {/*
+        Feelings come last and are optional. Students disclose emotionally only
+        after entering academically — requiring it up front is the barrier.
+      */}
+      <details className="group rounded-lg border border-white/10 bg-white/5">
+        <summary
+          className={`cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-slate-200 rounded-lg ${FOCUS_RING}`}
+        >
+          <span className="inline-flex items-center gap-2">
+            <span
+              className="text-slate-500 transition-transform group-open:rotate-90"
+              aria-hidden="true"
+            >
+              ›
+            </span>
+            Add how you&apos;re feeling
+            <span className="text-xs font-normal text-slate-400">optional</span>
+          </span>
+        </summary>
+
+        <div className="px-3 pb-3.5 pt-1 space-y-4">
+          <MoodPicker value={moodLevel} onChange={setMoodLevel} disabled={isAnalyzing} />
+
+          <div>
+            <EmotionPicker
+              selected={emotions}
+              onChange={setEmotions}
+              disabled={isAnalyzing}
+            />
+            {fieldErrors.emotions && (
+              <p className="text-xs text-red-500 mt-1" role="alert">
+                {fieldErrors.emotions[0]}
+              </p>
+            )}
+          </div>
+        </div>
+      </details>
 
       {flags.map((flag) => (
         <div

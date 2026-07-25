@@ -46,10 +46,19 @@ describe("JournalEntryRequestSchema", () => {
     ).toBe(false);
   });
 
-  it("requires at least one emotion", () => {
+  // Emotions are optional by design — requiring one forces the student to
+  // self-identify as unwell before entering. See docs/ROADMAP-v2.md P1.
+  it("accepts an entry with no emotions selected", () => {
     expect(
       JournalEntryRequestSchema.safeParse({ ...validRequest, emotions: [] }).success
-    ).toBe(false);
+    ).toBe(true);
+  });
+
+  it("defaults emotions to an empty array when omitted", () => {
+    const { emotions: _omitted, ...withoutEmotions } = validRequest;
+    const r = JournalEntryRequestSchema.safeParse(withoutEmotions);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.emotions).toEqual([]);
   });
 
   it("rejects more than 3 emotions", () => {

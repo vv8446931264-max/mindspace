@@ -36,10 +36,13 @@ export const JournalEntryRequestSchema = z.object({
     .int()
     .min(1, "Mood must be at least 1")
     .max(10, "Mood must be at most 10"),
+  // Optional by design. Requiring an emotion tag forces the student to
+  // self-identify as unwell before they can use the app, which is the exact
+  // barrier that keeps the highest-risk students out. See docs/ROADMAP-v2.md P1.
   emotions: z
     .array(z.enum(EMOTION_TAGS))
-    .min(1, "Select at least one emotion")
-    .max(3, "Select at most 3 emotions"),
+    .max(3, "Select at most 3 emotions")
+    .default([]),
   examContext: z.enum(EXAM_CONTEXTS),
   studyHoursToday: z
     .number()

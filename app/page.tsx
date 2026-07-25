@@ -3,6 +3,7 @@
 import AppHeader from "@/components/AppHeader";
 import Hero from "@/components/Hero";
 import JournalForm from "@/components/JournalForm";
+import ProblemSolver from "@/components/ProblemSolver";
 import ResultsPanel from "@/components/ResultsPanel";
 import { useWellness } from "@/lib/useWellness";
 
@@ -65,6 +66,15 @@ export default function HomePage() {
               onSubmit={w.handleSubmit}
             />
           </section>
+
+          {/*
+            Problem-solving sits alongside the journal, not behind it. It is the
+            evidence-backed core (PRIDE, d=1.47) and the answer to the measured
+            deficit — ~50% avoidance coping. See docs/ROADMAP-v2.md P1.2.
+          */}
+          <div className="md:col-start-1 float-in" style={{ animationDelay: "60ms" }}>
+            <ProblemSolver />
+          </div>
 
           <div className="float-in" style={{ animationDelay: "120ms" }}>
             <ResultsPanel
