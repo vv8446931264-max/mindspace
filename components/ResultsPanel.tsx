@@ -25,9 +25,13 @@ const ResultsPanel = forwardRef<HTMLDivElement, Props>(function ResultsPanel(
     <section aria-label="Wellness insights" className="space-y-5">
       <div
         ref={ref}
+        // tabIndex -1 makes this programmatically focusable without adding it to
+        // the tab order, so focus can follow the result after submit.
+        tabIndex={-1}
         aria-live="polite"
         aria-busy={isAnalyzing}
         aria-label="Analysis results"
+        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5B8DEF] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-3xl"
       >
         {appState.status === "idle" && (
           <div className="tilt glass rounded-3xl p-8 text-center">

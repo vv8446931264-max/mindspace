@@ -134,6 +134,10 @@ export default function JournalForm({
           disabled={isAnalyzing}
           placeholder="Write freely — how did today go? What's weighing on you? What went well?"
           rows={5}
+          // Romanised Hindi has no fixed spelling, so a spellchecker underlines
+          // most of an honest Hinglish sentence in red. Variance is the norm
+          // here, not error. See docs/ROADMAP-v2.md P3.2.
+          spellCheck={false}
           aria-describedby="charCount journalHint"
           className={`field w-full rounded-lg px-3 py-2 text-sm resize-none disabled:opacity-50 ${FOCUS_RING}`}
         />

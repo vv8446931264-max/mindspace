@@ -73,11 +73,30 @@ export function useWellness() {
 
   const isAnalyzing = appState.status === "analyzing";
 
+  /**
+   * Scroll to the results AND move focus there.
+   *
+   * Scrolling alone leaves keyboard and screen-reader users behind: the page
+   * moves but their focus stays on the submit button, so the thing they asked
+   * for is announced only as a live-region update with no way to navigate into
+   * it. Focusing the container makes the result the next thing they land on.
+   *
+   * Honours prefers-reduced-motion — a smooth scroll is motion, and this
+   * cohort reads the app at 2am on cheap hardware.
+   */
   const scrollToResults = useCallback(() => {
-    setTimeout(
-      () => resultsRef.current?.scrollIntoView({ behavior: "smooth" }),
-      50
-    );
+    setTimeout(() => {
+      const el = resultsRef.current;
+      if (!el) return;
+
+      const reduced =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+      el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+      // preventScroll: the scrollIntoView above already positioned the page.
+      el.focus({ preventScroll: true });
+    }, 50);
   }, []);
 
   const showCrisis = useCallback(
